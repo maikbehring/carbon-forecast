@@ -196,19 +196,22 @@ Wenn Sie manuell konfigurieren möchten:
    ```bash
    pnpm start
    ```
-5. **Environment Variables** hinzufügen:
+5. **Environment Variables** hinzufügen (wichtig - müssen manuell gesetzt werden):
    - `NODE_ENV=production`
-   - `DATABASE_URL` (von der PostgreSQL-Datenbank)
-   - `EXTENSION_ID` (Ihre Extension ID)
-   - `EXTENSION_SECRET` (Ihr Extension Secret)
-   - `PRISMA_FIELD_ENCRYPTION_KEY` (Ihr Encryption Key)
+   - `HOST=0.0.0.0` (damit der Server auf IPv4 läuft)
+   - `DATABASE_URL` (wird automatisch von Render gesetzt, wenn die Datenbank erstellt wurde)
+   - `EXTENSION_ID` (Ihre Extension ID von mittwald)
+   - `EXTENSION_SECRET` (Ihr Extension Secret von mittwald)
+   - `PRISMA_FIELD_ENCRYPTION_KEY` (muss manuell gesetzt werden - generieren Sie einen zufälligen String)
 
 6. **PostgreSQL-Datenbank**:
-   - Erstellen Sie eine neue PostgreSQL-Datenbank auf Render
-   - Führen Sie die Migrationen aus:
-     ```bash
-     pnpm db:migrate:deploy
-     ```
+   - Die Datenbank wird automatisch durch `render.yaml` erstellt
+   - Nach dem ersten Deployment müssen Sie die Migrationen ausführen:
+     - Gehen Sie zu Ihrem Render-Service
+     - Öffnen Sie die Shell/Console
+     - Führen Sie aus: `pnpm db:migrate:deploy`
+
+**Wichtig**: Die Environment-Variablen `EXTENSION_ID`, `EXTENSION_SECRET` und `PRISMA_FIELD_ENCRYPTION_KEY` müssen Sie manuell in Render.com setzen, da sie nicht automatisch generiert werden können.
 
 ### Wichtige Hinweise
 
