@@ -1,6 +1,21 @@
-# My mittwald Extension
+# Carbon Forecast Extension für mittwald
 
-This is a mittwald extension generated with the mittvibes CLI tool.
+Eine mittwald Extension zur Visualisierung der CO₂-Intensität des deutschen Stromnetzes. Diese Extension hilft Agenturen und Webentwicklern dabei, energieintensive Workloads zu Zeiten mit niedriger CO₂-Intensität auszuführen, um den ökologischen Fußabdruck zu reduzieren.
+
+## Features
+
+- 📊 **Interaktive Visualisierung**: CartesianChart mit grünem Flächendiagramm zur Darstellung der CO₂-Intensität über Zeit
+- ⏰ **24-Stunden-Vorhersage**: Zeigt die prognostizierte CO₂-Intensität für die nächsten 24 Stunden
+- 🔄 **Automatische Aktualisierung**: Daten werden alle 15 Minuten aktualisiert
+- 💡 **Tooltip-Informationen**: Detaillierte Werte beim Hovern über Datenpunkte
+- 📱 **Responsive Design**: Optimiert für die Darstellung im mittwald Studio
+- 🔒 **Sicher**: Server-seitige API-Calls mit Authentifizierung und Validierung
+
+## Datenquelle
+
+Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten des Fraunhofer ISE (Energy Charts) und der ENTSO-E Transparenzplattform. Das Projekt „Carbon Aware Computing" bereitet diese Daten auf und stellt sie als frei nutzbare Forecasts bereit.
+
+**API-Endpunkt**: `https://carbonawarecomputing.blob.core.windows.net/forecasts/de.json`
 
 ## Getting Started
 
@@ -36,23 +51,41 @@ This is a mittwald extension generated with the mittvibes CLI tool.
 
 Your extension will be available at `http://localhost:5173`
 
+## Verwendung
+
+Die Extension zeigt ein Diagramm mit der CO₂-Intensität des deutschen Stromnetzes für die nächsten 24 Stunden. Die Werte werden in g CO₂/kWh angezeigt:
+
+- **Grüne Bereiche**: Niedrige CO₂-Intensität (< 200 g CO₂/kWh) - optimal für energieintensive Workloads
+- **Orange Bereiche**: Mittlere CO₂-Intensität (200-300 g CO₂/kWh)
+- **Rote Bereiche**: Hohe CO₂-Intensität (> 300 g CO₂/kWh)
+
+### Empfehlung
+
+Planen Sie energieintensive Workloads für Zeitfenster mit niedriger CO₂-Intensität, um den ökologischen Fußabdruck Ihrer Anwendungen zu reduzieren.
+
 ## Project Structure
 
 ```
 src/
-├── components/         # React components
-├── hooks/             # Custom React hooks
-├── middlewares/       # TanStack middleware
-├── routes/            # TanStack Router routes
-│   ├── api/          # API endpoints
-│   └── __root.tsx    # Root layout
-├── server/           # Server functions
-│   └── functions/    # Server-side functions
-├── client.tsx        # Client entry point
-├── db.ts            # Prisma client configuration
-├── env.ts           # Environment validation
-├── global-middleware.ts  # Global middleware
-└── router.tsx       # Router configuration
+├── components/              # React components
+│   ├── CarbonForecast.tsx  # Hauptkomponente für die Visualisierung
+│   ├── ErrorMessage.tsx    # Fehleranzeige
+│   └── Loader.tsx          # Ladeanzeige
+├── middlewares/            # TanStack middleware
+│   └── verify-access-to-instance.ts  # Authentifizierung
+├── routes/                 # TanStack Router routes
+│   ├── api/               # API endpoints
+│   │   └── webhooks.mittwald.ts  # Webhook-Handler
+│   ├── index.tsx          # Hauptroute
+│   └── __root.tsx         # Root layout
+├── server/                 # Server functions
+│   └── functions/
+│       └── getCarbonForecast.ts  # API-Call für Carbon Forecast
+├── client.tsx             # Client entry point
+├── db.ts                  # Prisma client configuration
+├── env.ts                 # Environment validation
+├── global-middleware.ts   # Global middleware
+└── router.tsx             # Router configuration
 ```
 
 ## Available Scripts
@@ -90,13 +123,64 @@ src/
 - **Framework**: TanStack Start (React-based full-stack framework)
 - **Database**: PostgreSQL with Prisma ORM
 - **UI Components**: mittwald Flow Remote React Components
+  - CartesianChart für Datenvisualisierung
+  - Flow Components (Content, Heading, Text, Button, etc.)
+- **Data Visualization**: mittwald Flow CartesianChart mit Area-Chart
+- **Data Validation**: Zod für Schema-Validierung
 - **Authentication**: mittwald Extension Bridge
 - **Webhooks**: mitthooks library
 - **Code Quality**: Biome (linting & formatting)
 - **Testing**: Vitest
 
-## Contributing
+## Sicherheit
 
-This project was generated with mittvibes CLI by mittwald.
+Die Extension implementiert mehrere Sicherheitsmaßnahmen:
 
-For issues with the CLI tool itself, please report them at the mittvibes repository.
+- ✅ Input-Validierung mit Zod
+- ✅ Environment-Variablen-Validierung
+- ✅ Session-Token-Verifizierung
+- ✅ Timeout für externe API-Calls (10 Sekunden)
+- ✅ Generische Fehlermeldungen (keine internen Details)
+- ✅ XSS-Schutz durch React
+
+Siehe [SECURITY.md](./SECURITY.md) für Details.
+
+## Entwicklung
+
+### Lokale Entwicklung
+
+1. Repository klonen:
+   ```bash
+   git clone https://github.com/maikbehring/carbon-forecast.git
+   cd carbon-forecast
+   ```
+
+2. Dependencies installieren:
+   ```bash
+   pnpm install
+   ```
+
+3. Environment-Variablen konfigurieren (siehe `.env.example`)
+
+4. Development-Server starten:
+   ```bash
+   pnpm dev
+   ```
+
+### Build für Production
+
+```bash
+pnpm build
+pnpm start
+```
+
+## Lizenz
+
+Dieses Projekt wurde mit mittvibes CLI von mittwald generiert.
+
+## Links
+
+- [GitHub Repository](https://github.com/maikbehring/carbon-forecast)
+- [mittwald API Dokumentation](https://api.mittwald.de/v2/docs/)
+- [Extension Development Guide](https://developer.mittwald.de/docs/v2/contribution/)
+- [Carbon Aware Computing](https://github.com/Green-Software-Foundation/carbon-aware-sdk)
