@@ -4,12 +4,16 @@ services:
     env: node
     plan: starter
     buildCommand: pnpm install && pnpm db:generate && pnpm build
-    startCommand: pnpm start
+    startCommand: HOST=0.0.0.0 pnpm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: HOST
         value: "0.0.0.0"
+      - key: NITRO_HOST
+        value: "0.0.0.0"
+      - key: NITRO_PORT
+        value: "10000"
       - key: DATABASE_URL
         fromDatabase:
           name: carbon-forecast-db
