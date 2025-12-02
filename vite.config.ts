@@ -5,7 +5,7 @@ import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   server: {
-    port: 5173,
+    port: Number(process.env.PORT) || 10000,
   },
   plugins: [
     tsConfigPaths({

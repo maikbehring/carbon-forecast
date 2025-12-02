@@ -49,7 +49,7 @@ Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten des F
    pnpm dev
    ```
 
-Your extension will be available at `http://localhost:5173`
+Your extension will be available at `http://localhost:10000`
 
 ## Verwendung
 
@@ -173,6 +173,49 @@ Siehe [SECURITY.md](./SECURITY.md) für Details.
 pnpm build
 pnpm start
 ```
+
+## Deployment auf Render.com
+
+### Option 1: Automatisches Deployment mit render.yaml
+
+1. **Service-Typ wählen**: **Web Service** (nicht Static Site!)
+2. **Repository verbinden**: GitHub-Repository verbinden
+3. **render.yaml verwenden**: Render erkennt automatisch die `render.yaml` Datei
+
+### Option 2: Manuelle Konfiguration
+
+Wenn Sie manuell konfigurieren möchten:
+
+1. **Service-Typ**: Wählen Sie **"Web Service"** (nicht Static Site!)
+2. **Environment**: **Node**
+3. **Build Command**: 
+   ```bash
+   pnpm install && pnpm db:generate && pnpm build
+   ```
+4. **Start Command**: 
+   ```bash
+   pnpm start
+   ```
+5. **Environment Variables** hinzufügen:
+   - `NODE_ENV=production`
+   - `DATABASE_URL` (von der PostgreSQL-Datenbank)
+   - `EXTENSION_ID` (Ihre Extension ID)
+   - `EXTENSION_SECRET` (Ihr Extension Secret)
+   - `PRISMA_FIELD_ENCRYPTION_KEY` (Ihr Encryption Key)
+
+6. **PostgreSQL-Datenbank**:
+   - Erstellen Sie eine neue PostgreSQL-Datenbank auf Render
+   - Führen Sie die Migrationen aus:
+     ```bash
+     pnpm db:migrate:deploy
+     ```
+
+### Wichtige Hinweise
+
+- ⚠️ **Nicht "Static Site" wählen** - die Extension benötigt einen Node.js-Server
+- ✅ **"Web Service" wählen** - für Node.js-Anwendungen mit Server-Funktionen
+- 🔒 Stellen Sie sicher, dass alle Environment-Variablen gesetzt sind
+- 📦 Render unterstützt pnpm automatisch über die `packageManager` Angabe in `package.json`
 
 ## Lizenz
 

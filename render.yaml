@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: carbon-forecast
+    env: node
+    plan: starter
+    buildCommand: pnpm install && pnpm db:generate && pnpm build
+    startCommand: PORT=10000 pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: carbon-forecast-db
+          property: connectionString
+      - key: EXTENSION_ID
+        sync: false
+      - key: EXTENSION_SECRET
+        sync: false
+      - key: PRISMA_FIELD_ENCRYPTION_KEY
+        sync: false
+
+databases:
+  - name: carbon-forecast-db
+    plan: starter
+    databaseName: carbon_forecast
+    user: carbon_forecast_user
+
