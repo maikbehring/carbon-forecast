@@ -4,7 +4,7 @@ services:
     env: node
     plan: starter
     buildCommand: pnpm install && pnpm db:generate && pnpm build
-    startCommand: PORT=10000 pnpm start
+    startCommand: pnpm start
     envVars:
       - key: NODE_ENV
         value: production
