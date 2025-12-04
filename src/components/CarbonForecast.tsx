@@ -146,14 +146,16 @@ export function CarbonForecast({
 	return (
 		<Content>
 			<Section>
-				<Flex justify="space-between" align="center">
+				<Content>
 					<Heading level={1}>Carbon Forecast Deutschland</Heading>
 					{onRefresh && (
-						<Button onPress={onRefresh} isDisabled={isRefreshing}>
-							{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
-						</Button>
+						<Content>
+							<Button onPress={onRefresh} isDisabled={isRefreshing}>
+								{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
+							</Button>
+						</Content>
 					)}
-				</Flex>
+				</Content>
 			</Section>
 
 			<Section>
@@ -178,7 +180,7 @@ export function CarbonForecast({
 
 			<Section>
 				<Heading level={2}>CO₂-Metriken</Heading>
-				<Flex gap="m" justify="space-around">
+				<Flex gap="m" justify="center">
 					<BigNumber>
 						<Text>{currentRating.toFixed(1)}</Text>
 						<Text>g CO₂/kWh</Text>
