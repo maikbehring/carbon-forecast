@@ -10,6 +10,11 @@ import {
 	YAxis,
 	Section,
 	ChartTooltip,
+	Flex,
+	Accordion,
+	AccentBox,
+	BigNumber,
+	Badge,
 } from "@mittwald/flow-remote-react-components";
 import type { CarbonForecast } from "~/server/functions/getCarbonForecast";
 
@@ -78,21 +83,6 @@ export function CarbonForecast({
 		};
 	});
 
-	// Calculate Y-axis domain with some padding
-	const maxRating =
-		futureEmissions.length > 0
-			? Math.max(...futureEmissions.map((e) => e.Rating))
-			: 0;
-	const minRating =
-		futureEmissions.length > 0
-			? Math.min(...futureEmissions.map((e) => e.Rating))
-			: 0;
-	const padding = (maxRating - minRating) * 0.1 || 10;
-	const yDomain = [
-		Math.max(0, Math.floor(minRating - padding)),
-		Math.ceil(maxRating + padding),
-	];
-
 	if (chartData.length === 0) {
 		return (
 			<Content>
@@ -100,6 +90,21 @@ export function CarbonForecast({
 			</Content>
 		);
 	}
+
+	// Calculate metrics
+	const currentRating = futureEmissions[0]?.Rating || 0;
+	const minRatingValue = Math.min(...futureEmissions.map((e) => e.Rating));
+	const maxRatingValue = Math.max(...futureEmissions.map((e) => e.Rating));
+	const avgRating =
+		futureEmissions.reduce((sum, e) => sum + e.Rating, 0) /
+		futureEmissions.length;
+
+	// Calculate Y-axis domain with some padding
+	const padding = (maxRatingValue - minRatingValue) * 0.1 || 10;
+	const yDomain = [
+		Math.max(0, Math.floor(minRatingValue - padding)),
+		Math.ceil(maxRatingValue + padding),
+	];
 
 	// Calculate the actual time span covered by the data
 	const firstEmissionTime = new Date(futureEmissions[0].Time);
@@ -123,29 +128,93 @@ export function CarbonForecast({
 		return `nächsten ${minutes} Minuten`;
 	};
 
+	// Find optimal time (lowest CO2 rating)
+	const optimalEmission = futureEmissions.reduce((min, e) =>
+		e.Rating < min.Rating ? e : min,
+	);
+
+	// Get status badge
+	function getStatusBadge(rating: number) {
+		if (rating < 200) return { color: "green" as const, label: "Sehr gut" };
+		if (rating < 300) return { color: "teal" as const, label: "Gut" };
+		if (rating < 400) return { color: "orange" as const, label: "Mittel" };
+		return { color: "red" as const, label: "Hoch" };
+	}
+
+	const currentStatus = getStatusBadge(currentRating);
+
 	return (
 		<Content>
 			<Section>
-				<Content>
+				<Flex justify="space-between" align="center">
 					<Heading level={1}>Carbon Forecast Deutschland</Heading>
 					{onRefresh && (
 						<Button onPress={onRefresh} isDisabled={isRefreshing}>
 							{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
 						</Button>
 					)}
-				</Content>
+				</Flex>
 			</Section>
 
 			<Section>
 				<Text>
 					Vorhersage erstellt am: <strong>{formatDateTime(GeneratedAt)}</strong>
 				</Text>
-				<Text>
-					* Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten
-					des Fraunhofer ISE (Energy Charts) und der ENTSO-E
-					Transparenzplattform. Das Projekt „Carbon Aware Computing" bereitet diese
-					Daten auf und stellt sie als frei nutzbare Forecasts bereit.
-				</Text>
+			</Section>
+
+			<Section>
+				<AccentBox color="green">
+					<Section>
+						<Text>
+							Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren
+							Energiedaten des Fraunhofer ISE (Energy Charts) und der ENTSO-E
+							Transparenzplattform. Das Projekt „Carbon Aware Computing"
+							bereitet diese Daten auf und stellt sie als frei nutzbare
+							Forecasts bereit.
+						</Text>
+					</Section>
+				</AccentBox>
+			</Section>
+
+			<Section>
+				<Heading level={2}>CO₂-Metriken</Heading>
+				<Flex gap="m" justify="space-around">
+					<BigNumber>
+						<Text>{currentRating.toFixed(1)}</Text>
+						<Text>g CO₂/kWh</Text>
+						<Text>
+							Aktuell{" "}
+							<Badge color={currentStatus.color}>
+								{currentStatus.label}
+							</Badge>
+						</Text>
+					</BigNumber>
+					<BigNumber>
+						<Text>{minRatingValue.toFixed(1)}</Text>
+						<Text>g CO₂/kWh</Text>
+						<Text>Minimum</Text>
+					</BigNumber>
+					<BigNumber>
+						<Text>{avgRating.toFixed(1)}</Text>
+						<Text>g CO₂/kWh</Text>
+						<Text>Durchschnitt</Text>
+					</BigNumber>
+				</Flex>
+			</Section>
+
+			<Section>
+				<AccentBox color="green">
+					<Section>
+						<Heading level={3}>Optimaler Zeitpunkt</Heading>
+						<Text>
+							<strong>{formatDateTime(optimalEmission.Time)}</strong>
+							<br />
+							CO₂-Intensität: {optimalEmission.Rating.toFixed(1)} g CO₂/kWh
+							<br />
+							Dies ist der beste Zeitpunkt für energieintensive Workloads.
+						</Text>
+					</Section>
+				</AccentBox>
 			</Section>
 
 			<Section>
@@ -162,36 +231,45 @@ export function CarbonForecast({
 					<Area dataKey="CO2" color="green" fillOpacity={0.3} />
 					<XAxis dataKey="Zeit" />
 					<YAxis domain={yDomain} unit=" g CO₂/kWh" />
-					<ChartTooltip />
+					<ChartTooltip
+						formatter={(value) => {
+							if (typeof value === "number") {
+								return `${value.toFixed(1)} g CO₂/kWh`;
+							}
+							return `${value}`;
+						}}
+					/>
 				</CartesianChart>
 			</Section>
 
 			<Section>
-				<Heading level={3}>Erklärung der Werte</Heading>
-				<Content>
-					<Text>
-						<strong>CO₂-Intensität (g CO₂/kWh):</strong> Die geschätzte
-						Emissionsintensität des Stroms in Gramm CO₂ pro Kilowattstunde. Je
-						niedriger dieser Wert ist, desto klimafreundlicher ist der Strom zu
-						diesem Zeitpunkt.
-					</Text>
-				</Content>
-				<Content>
-					<Text>
-						<strong>Zeitachse:</strong> Die X-Achse zeigt die Uhrzeit in
-						15-Minuten-Intervallen für die kommenden Stunden an. Die Vorhersage
-						wird regelmäßig aktualisiert, um die aktuellsten Prognosen zu
-						liefern.
-					</Text>
-				</Content>
-				<Content>
-					<Text>
-						<strong>Empfehlung:</strong> Planen Sie energieintensive Workloads
-						für Zeitfenster mit niedriger CO₂-Intensität (grüne Bereiche im
-						Diagramm). Dies hilft, den ökologischen Fußabdruck Ihrer
-						Anwendungen zu reduzieren.
-					</Text>
-				</Content>
+				<Accordion variant="outline">
+					<Heading level={3}>Erklärung der Werte</Heading>
+					<Content>
+						<Text>
+							<strong>CO₂-Intensität (g CO₂/kWh):</strong> Die geschätzte
+							Emissionsintensität des Stroms in Gramm CO₂ pro Kilowattstunde. Je
+							niedriger dieser Wert ist, desto klimafreundlicher ist der Strom zu
+							diesem Zeitpunkt.
+						</Text>
+					</Content>
+					<Content>
+						<Text>
+							<strong>Zeitachse:</strong> Die X-Achse zeigt die Uhrzeit in
+							15-Minuten-Intervallen für die kommenden Stunden an. Die Vorhersage
+							wird regelmäßig aktualisiert, um die aktuellsten Prognosen zu
+							liefern.
+						</Text>
+					</Content>
+					<Content>
+						<Text>
+							<strong>Empfehlung:</strong> Planen Sie energieintensive Workloads
+							für Zeitfenster mit niedriger CO₂-Intensität (grüne Bereiche im
+							Diagramm). Dies hilft, den ökologischen Fußabdruck Ihrer
+							Anwendungen zu reduzieren.
+						</Text>
+					</Content>
+				</Accordion>
 			</Section>
 		</Content>
 	);

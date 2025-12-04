@@ -37,3 +37,6 @@
 3. Security-Headers (HSTS, X-Frame-Options, etc.) konfigurieren
 4. Regelmäßige Dependency-Audits durchführen (`pnpm audit`)
 
+
+
+
