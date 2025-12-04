@@ -165,17 +165,21 @@ export function CarbonForecast({
 			</Section>
 
 			<Section>
-				<AccentBox color="green">
-					<Section>
-						<Text>
-							Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren
-							Energiedaten des Fraunhofer ISE (Energy Charts) und der ENTSO-E
-							Transparenzplattform. Das Projekt „Carbon Aware Computing"
-							bereitet diese Daten auf und stellt sie als frei nutzbare
-							Forecasts bereit.
-						</Text>
-					</Section>
-				</AccentBox>
+				<Heading level={2}>CO₂-Intensität über Zeit</Heading>
+				<Text>
+					Visualisierung der prognostizierten CO₂-Intensität des Stroms für die{" "}
+					{getTimeDescription()}:
+				</Text>
+			</Section>
+
+			<Section>
+				<CartesianChart data={chartData} height="300px">
+					<CartesianGrid />
+					<Area dataKey="CO2" color="green" fillOpacity={0.3} />
+					<XAxis dataKey="Zeit" />
+					<YAxis domain={yDomain} unit=" g CO₂/kWh" />
+					<ChartTooltip />
+				</CartesianChart>
 			</Section>
 
 			<Section>
@@ -220,28 +224,12 @@ export function CarbonForecast({
 			</Section>
 
 			<Section>
-				<Heading level={2}>CO₂-Intensität über Zeit</Heading>
 				<Text>
-					Visualisierung der prognostizierten CO₂-Intensität des Stroms für die{" "}
-					{getTimeDescription()}:
+					Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten
+					des Fraunhofer ISE (Energy Charts) und der ENTSO-E
+					Transparenzplattform. Das Projekt „Carbon Aware Computing" bereitet diese
+					Daten auf und stellt sie als frei nutzbare Forecasts bereit.
 				</Text>
-			</Section>
-
-			<Section>
-				<CartesianChart data={chartData} height="300px">
-					<CartesianGrid />
-					<Area dataKey="CO2" color="green" fillOpacity={0.3} />
-					<XAxis dataKey="Zeit" />
-					<YAxis domain={yDomain} unit=" g CO₂/kWh" />
-					<ChartTooltip
-						formatter={(value) => {
-							if (typeof value === "number") {
-								return `${value.toFixed(1)} g CO₂/kWh`;
-							}
-							return `${value}`;
-						}}
-					/>
-				</CartesianChart>
 			</Section>
 
 			<Section>
