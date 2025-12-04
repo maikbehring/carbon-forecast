@@ -56,6 +56,11 @@ export function CarbonForecast({
 		return (
 			<Content>
 				<Text>Keine zukünftigen Daten verfügbar.</Text>
+				<Text>
+					Verfügbare Datenpunkte insgesamt: {Emissions.length} (von{" "}
+					{formatDateTime(Emissions[0]?.Time || "")} bis{" "}
+					{formatDateTime(Emissions[Emissions.length - 1]?.Time || "")})
+				</Text>
 			</Content>
 		);
 	}
@@ -68,6 +73,9 @@ export function CarbonForecast({
 		const emissionTime = new Date(emission.Time);
 		return emissionTime <= endTime;
 	});
+
+	// Debug: Log available data
+	console.log(`Total emissions: ${Emissions.length}, Future emissions: ${sortedFutureEmissions.length}, Filtered (24h): ${futureEmissions.length}`);
 
 	// Prepare chart data with formatted time for X-axis
 	const chartData = futureEmissions.map((emission) => {
@@ -170,6 +178,22 @@ export function CarbonForecast({
 					Visualisierung der prognostizierten CO₂-Intensität des Stroms für die{" "}
 					{getTimeDescription()}:
 				</Text>
+				{futureEmissions.length < 96 && (
+					<Content>
+						<Text>
+							<strong>Hinweis:</strong> Es sind nur {futureEmissions.length} von{" "}
+							{Emissions.length} Datenpunkten verfügbar. Die Vorhersage deckt{" "}
+							{getTimeDescription()} ab.
+						</Text>
+						<Text>
+							Die Extension zeigt nur zukünftige Datenpunkte an. Da die Prognose
+							meist um 23:00 Uhr abends (UTC) für die kommenden 24 Stunden generiert
+							wird, sind am späten Tag bereits viele Stunden in der Vergangenheit und
+							werden nicht mehr angezeigt. Eine neue 24-Stunden-Prognose wird
+							typischerweise um Mitternacht MEZ (23:00 UTC) verfügbar sein.
+						</Text>
+					</Content>
+				)}
 			</Section>
 
 			<Section>

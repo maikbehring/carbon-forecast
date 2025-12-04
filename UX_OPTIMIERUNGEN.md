@@ -240,3 +240,4 @@ const optimalEmission = futureEmissions.reduce((min, e) =>
 - **Vergleich:** Vergleich mit vorherigem Tag/Woche
 - **Export:** Möglichkeit, Daten als CSV zu exportieren
 
+

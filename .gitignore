@@ -38,3 +38,9 @@ logs/
 
 # Prisma
 prisma/migrations/.migrate
+
+# Documentation
+BLOG.md
+
+# Scripts
+scripts/get-carbon-forecast.sh
