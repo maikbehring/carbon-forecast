@@ -83,7 +83,7 @@ function RouteComponent() {
 					<Section>
 						<Heading level={2}>Tipps und Tricks</Heading>
 						<Text>
-							Hier finden Sie hilfreiche Tipps und Tricks zur optimalen Nutzung
+							Hier findest du hilfreiche Tipps und Tricks zur optimalen Nutzung
 							des Carbon Forecasts sowie Code-Beispiele für die Integration in
 							eigene Automatisierungen.
 						</Text>
@@ -95,8 +95,8 @@ function RouteComponent() {
 							<Content>
 								<Heading level={4}>Cron-Jobs optimieren</Heading>
 								<Text>
-									Planen Sie energieintensive Cron-Jobs für Zeiten mit niedriger
-									CO₂-Intensität. Nutzen Sie die mittwald Cron-Job API, um Jobs
+									Plane energieintensive Cron-Jobs für Zeiten mit niedriger
+									CO₂-Intensität. Nutze die mittwald Cron-Job API, um Jobs
 									dynamisch zu erstellen oder zu verschieben, basierend auf den
 									aktuellen Forecast-Daten.
 								</Text>
@@ -117,19 +117,19 @@ function RouteComponent() {
 							<Content>
 								<Heading level={4}>Deployment-Zeiten optimieren</Heading>
 								<Text>
-									Verschieben Sie größere Deployments oder System-Updates auf
+									Verschiebe größere Deployments oder System-Updates auf
 									Zeiten mit niedriger CO₂-Intensität. Dies reduziert nicht nur
-									den ökologischen Fußabdruck, sondern kann auch die
+									deinen ökologischen Fußabdruck, sondern kann auch die
 									Benutzererfahrung verbessern, wenn weniger Nutzer aktiv sind.
 								</Text>
 							</Content>
 							<Content>
 								<Heading level={4}>Monitoring und Reporting</Heading>
 								<Text>
-									Integrieren Sie die Carbon Forecast Daten in Ihr Monitoring,
-									um den CO₂-Fußabdruck Ihrer Anwendungen zu tracken und zu
+									Integriere die Carbon Forecast Daten in dein Monitoring,
+									um den CO₂-Fußabdruck deiner Anwendungen zu tracken und zu
 									reporten. Dies hilft bei der Nachhaltigkeitsberichterstattung
-									und zeigt Ihr Engagement für klimafreundliche IT.
+									und zeigt dein Engagement für klimafreundliche IT.
 								</Text>
 							</Content>
 						</Accordion>
@@ -141,7 +141,7 @@ function RouteComponent() {
 							<Content>
 								<Heading level={4}>CI/CD-Pipelines</Heading>
 								<Text>
-									Planen Sie Build- und Deployment-Pipelines für Zeiten mit
+									Plane Build- und Deployment-Pipelines für Zeiten mit
 									niedriger CO₂-Intensität. Besonders bei großen Projekten mit
 									langen Build-Zeiten kann dies erhebliche CO₂-Einsparungen
 									bewirken.
@@ -150,7 +150,7 @@ function RouteComponent() {
 							<Content>
 								<Heading level={4}>Datenverarbeitung und Analytics</Heading>
 								<Text>
-									Verschieben Sie rechenintensive Datenverarbeitungsjobs (ETL,
+									Verschiebe rechenintensive Datenverarbeitungsjobs (ETL,
 									Data Warehousing, Machine Learning Training) auf optimale
 									Zeitfenster. Dies ist besonders relevant für Batch-Jobs, die
 									nicht in Echtzeit ausgeführt werden müssen.
@@ -159,14 +159,14 @@ function RouteComponent() {
 							<Content>
 								<Heading level={4}>Content Delivery</Heading>
 								<Text>
-									Planen Sie große Content-Updates, Video-Transcodierungen oder
+									Plane große Content-Updates, Video-Transcodierungen oder
 									CDN-Synchronisationen für Zeiten mit niedriger CO₂-Intensität.
 								</Text>
 							</Content>
 							<Content>
 								<Heading level={4}>Cloud-Ressourcen-Management</Heading>
 								<Text>
-									Nutzen Sie die Forecast-Daten, um Auto-Scaling-Regeln zu
+									Nutze die Forecast-Daten, um Auto-Scaling-Regeln zu
 									optimieren oder um temporäre Ressourcen (z.B. für
 									Stresstests) zu Zeiten mit niedriger CO₂-Intensität zu
 									starten.
@@ -181,33 +181,33 @@ function RouteComponent() {
 							<Content>
 								<Heading level={4}>Haushaltsgeräte</Heading>
 								<Text>
-									Steuern Sie Waschmaschine, Geschirrspüler oder andere
+									Steuere Waschmaschine, Geschirrspüler oder andere
 									energieintensive Haushaltsgeräte über Smart-Home-Automatisierung
-									basierend auf den Forecast-Daten. Laden Sie diese Geräte
+									basierend auf den Forecast-Daten. Starte diese Geräte
 									automatisch, wenn die CO₂-Intensität niedrig ist.
 								</Text>
 							</Content>
 							<Content>
 								<Heading level={4}>E-Auto Laden</Heading>
 								<Text>
-									Optimieren Sie die Ladezeiten Ihres Elektrofahrzeugs. Wenn
-									das Auto nicht sofort geladen werden muss, können Sie die
+									Optimiere die Ladezeiten deines Elektrofahrzeugs. Wenn
+									das Auto nicht sofort geladen werden muss, kannst du die
 									Ladezeit auf Zeiten mit niedriger CO₂-Intensität verschieben.
-									Dies macht Ihr E-Auto noch klimafreundlicher.
+									Dies macht dein E-Auto noch klimafreundlicher.
 								</Text>
 							</Content>
 							<Content>
 								<Heading level={4}>Wärmepumpen und Klimaanlagen</Heading>
 								<Text>
-									Steuern Sie Wärmepumpen oder Klimaanlagen intelligenter, indem
-									Sie die Vorwärmung oder Vorkühlung auf Zeiten mit niedriger
-									CO₂-Intensität verschieben, wenn möglich.
+									Steuere Wärmepumpen oder Klimaanlagen intelligenter, indem
+									du die Vorwärmung oder Vorkühlung auf Zeiten mit niedriger
+									CO₂-Intensität verschiebst, wenn möglich.
 								</Text>
 							</Content>
 							<Content>
 								<Heading level={4}>Batteriespeicher</Heading>
 								<Text>
-									Wenn Sie einen Batteriespeicher besitzen, können Sie die
+									Wenn du einen Batteriespeicher besitzt, kannst du die
 									Lade- und Entladezyklen optimieren, um zu Zeiten mit hoher
 									CO₂-Intensität aus dem Speicher zu versorgen und bei niedriger
 									Intensität zu laden.
@@ -272,7 +272,7 @@ echo "Aktuelle CO₂-Intensität: $CURRENT_RATING g CO₂/kWh`}
 										copyable
 									/>
 									<Text>
-										Ein vollständiges Beispiel-Script finden Sie unter{" "}
+										Ein vollständiges Beispiel-Script findest du unter{" "}
 										<InlineCode>scripts/get-carbon-forecast.sh</InlineCode>
 									</Text>
 								</Content>
@@ -358,14 +358,14 @@ async function getCarbonForecast() {
 										<strong>Schwellenwert-basierte Steuerung:</strong>
 									</Text>
 									<Text>
-										Führen Sie Tasks nur aus, wenn die CO₂-Intensität unter einem
+										Führe Tasks nur aus, wenn die CO₂-Intensität unter einem
 										bestimmten Schwellenwert liegt (z.B. &lt; 300 g CO₂/kWh).
 									</Text>
 									<Text>
 										<strong>Zeitfenster-Optimierung:</strong>
 									</Text>
 									<Text>
-										Planen Sie Tasks für das nächste Zeitfenster mit niedriger
+										Plane Tasks für das nächste Zeitfenster mit niedriger
 										CO₂-Intensität, auch wenn es nicht sofort ausgeführt werden
 										muss.
 									</Text>
@@ -373,7 +373,7 @@ async function getCarbonForecast() {
 										<strong>Monitoring und Alerting:</strong>
 									</Text>
 									<Text>
-										Erstellen Sie Alerts, wenn die CO₂-Intensität besonders
+										Erstelle Alerts, wenn die CO₂-Intensität besonders
 										niedrig ist, um energieintensive Tasks manuell zu starten.
 									</Text>
 								</Section>
