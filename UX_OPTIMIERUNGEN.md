@@ -241,3 +241,4 @@ const optimalEmission = futureEmissions.reduce((min, e) =>
 - **Export:** Möglichkeit, Daten als CSV zu exportieren
 
 
+

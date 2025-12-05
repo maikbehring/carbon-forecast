@@ -1,4 +1,12 @@
-import { Content } from "@mittwald/flow-remote-react-components";
+import {
+	Content,
+	Tabs,
+	Tab,
+	TabTitle,
+	Section,
+	Heading,
+	Text,
+} from "@mittwald/flow-remote-react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCarbonForecast } from "~/server/functions/getCarbonForecast";
@@ -57,11 +65,26 @@ function RouteComponent() {
 
 	return (
 		<Content>
-			<CarbonForecast
-				forecast={forecast}
-				onRefresh={handleRefresh}
-				isRefreshing={isFetching}
-			/>
+			<Tabs>
+				<Tab>
+					<TabTitle>Carbon Forecast</TabTitle>
+					<CarbonForecast
+						forecast={forecast}
+						onRefresh={handleRefresh}
+						isRefreshing={isFetching}
+					/>
+				</Tab>
+				<Tab>
+					<TabTitle>Tipps und Tricks</TabTitle>
+					<Section>
+						<Heading level={2}>Tipps und Tricks</Heading>
+						<Text>
+							Hier finden Sie hilfreiche Tipps und Tricks zur optimalen Nutzung
+							des Carbon Forecasts.
+						</Text>
+					</Section>
+				</Tab>
+			</Tabs>
 		</Content>
 	);
 }
