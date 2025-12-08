@@ -102,7 +102,6 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 						<CronjobList.TableColumn>Status</CronjobList.TableColumn>
 						<CronjobList.TableColumn>Interval</CronjobList.TableColumn>
 						<CronjobList.TableColumn>Destination</CronjobList.TableColumn>
-						<CronjobList.TableColumn>Timeout</CronjobList.TableColumn>
 						<CronjobList.TableColumn>Aktionen</CronjobList.TableColumn>
 					</CronjobList.TableHeader>
 					<CronjobList.TableBody>
@@ -153,11 +152,6 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 									}
 									return <InlineCode>{cronjob.destination.path}</InlineCode>;
 								}}
-							</CronjobList.TableCell>
-							<CronjobList.TableCell>
-								{(cronjob) =>
-									cronjob.timeout ? `${cronjob.timeout} Sekunden` : "-"
-								}
 							</CronjobList.TableCell>
 							<CronjobList.TableCell>
 								{(cronjob) => <EditCronjobForm cronjob={cronjob} />}
