@@ -19,6 +19,10 @@ export const updateCronjob = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context, data }: { context: { projectId?: string; sessionToken: string }; data: unknown }) => {
 		try {
+			if (!data || typeof data !== "object") {
+				throw new Error("Invalid data: expected object, received null or invalid type");
+			}
+
 			const validatedBody = UpdateCronjobSchema.parse(data);
 
 			if (!validatedBody.projectId) {

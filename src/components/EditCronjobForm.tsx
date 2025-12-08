@@ -185,8 +185,12 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 					</Section>
 				</Content>
 				<ActionGroup>
-					<Action closeOverlay="Modal" action={handleSubmit}>
-						<Button color="accent" isDisabled={isSubmitting}>
+					<Action closeOverlay="Modal">
+						<Button 
+							color="accent" 
+							isDisabled={isSubmitting}
+							onPress={handleSubmit}
+						>
 							{isSubmitting ? "Wird gespeichert..." : "Speichern"}
 						</Button>
 						<Button variant="soft" color="secondary">
