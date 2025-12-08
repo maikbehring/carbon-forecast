@@ -7,7 +7,6 @@ import { env } from "~/env";
 
 const UpdateCronjobSchema = z.object({
 	cronjobId: z.string().min(1),
-	projectId: z.string().min(1),
 	description: z.string().min(1).optional(),
 	interval: z.string().min(1).optional(),
 	destination: z.string().min(1).optional(),
@@ -24,10 +23,6 @@ export const updateCronjob = createServerFn({ method: "POST" })
 			}
 
 			const validatedBody = UpdateCronjobSchema.parse(data);
-
-			if (!validatedBody.projectId) {
-				throw new Error("Project ID is required");
-			}
 
 			const { publicToken: accessToken } = await getAccessToken(
 				context.sessionToken,

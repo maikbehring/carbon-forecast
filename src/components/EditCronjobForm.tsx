@@ -81,15 +81,16 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 		setIsSubmitting(true);
 
 		try {
-			await updateCronjob({
-				cronjobId: cronjob.id,
-				projectId: cronjob.projectId,
-				description,
-				interval,
-				destination,
+			await updateCronjob(
+				{
+					cronjobId: cronjob.id,
+					description,
+					interval,
+					destination,
 					timeout: timeoutValue ? Number.parseInt(timeoutValue, 10) : undefined,
-				active,
-			} as Parameters<typeof updateCronjob>[0]);
+					active,
+				} as Parameters<typeof updateCronjob>[0],
+			);
 
 			setSuccess(true);
 
@@ -185,14 +186,14 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 					</Section>
 				</Content>
 				<ActionGroup>
+					<Button 
+						color="accent" 
+						isDisabled={isSubmitting}
+						onPress={handleSubmit}
+					>
+						{isSubmitting ? "Wird gespeichert..." : "Speichern"}
+					</Button>
 					<Action closeOverlay="Modal">
-						<Button 
-							color="accent" 
-							isDisabled={isSubmitting}
-							onPress={handleSubmit}
-						>
-							{isSubmitting ? "Wird gespeichert..." : "Speichern"}
-						</Button>
 						<Button variant="soft" color="secondary">
 							Abbrechen
 						</Button>
