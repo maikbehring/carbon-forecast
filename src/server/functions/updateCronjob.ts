@@ -21,13 +21,32 @@ export const updateCronjob = createServerFn({ method: "POST" })
 			if (!context) {
 				throw new Error("Context is required");
 			}
-			const ctx = context as { sessionToken: string };
+			const ctx = context as { sessionToken: string; _data?: unknown };
 
-			if (!data || typeof data !== "object") {
-				throw new Error("Invalid data: expected object, received null or invalid type");
-			}
+		// WORKAROUND: Use data from context._data if data parameter is null
+		// This is needed because TanStack Start v1.131.48 parses body AFTER middleware
+		let parsedData: unknown = data;
+		console.log("updateCronjob - data:", data);
+		console.log("updateCronjob - context._data:", ctx._data);
+		
+		if (
+			(parsedData === null || parsedData === undefined) &&
+			ctx._data !== undefined
+		) {
+			console.log("updateCronjob - Using context._data as fallback");
+			parsedData = ctx._data;
+		}
 
-			const validatedBody = UpdateCronjobSchema.parse(data);
+		if (!parsedData || typeof parsedData !== "object") {
+			console.error("updateCronjob - Invalid data:", {
+				data,
+				contextData: ctx._data,
+				parsedData,
+			});
+			throw new Error("Invalid data: expected object, received null or invalid type");
+		}
+
+			const validatedBody = UpdateCronjobSchema.parse(parsedData);
 
 			const { publicToken: accessToken } = await getAccessToken(
 				ctx.sessionToken,

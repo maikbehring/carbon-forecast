@@ -22,8 +22,10 @@ export const verifyAccessToInstance = createMiddleware({
 		// WORKAROUND: Pass data in sendContext for POST requests with middleware
 		// TanStack Start v1.131.48 parses body AFTER middleware, so data is null
 		// See: updatenotification.md for details
+		console.log("verifyAccessToInstance.client - data:", data);
 		if (data && typeof data === "object") {
 			sendContext._data = data;
+			console.log("verifyAccessToInstance.client - Stored data in sendContext._data");
 		}
 
 		return (next as any)({
@@ -42,10 +44,14 @@ export const verifyAccessToInstance = createMiddleware({
 
 		// WORKAROUND: Use data from sendContext if data parameter is null
 		let parsedData: unknown = data;
+		console.log("verifyAccessToInstance.server - data:", data);
+		console.log("verifyAccessToInstance.server - context._data:", contextWithToken._data);
+		
 		if (
 			(parsedData === null || parsedData === undefined) &&
 			contextWithToken._data !== undefined
 		) {
+			console.log("verifyAccessToInstance.server - Using context._data as fallback");
 			parsedData = contextWithToken._data;
 		}
 
@@ -56,6 +62,7 @@ export const verifyAccessToInstance = createMiddleware({
 				userId: res.userId,
 				contextId: res.contextId,
 				projectId: contextWithToken.projectId,
+				_data: contextWithToken._data, // Also pass _data in context as fallback
 			},
 			data: parsedData, // Use data from sendContext if data parameter is null
 		});
