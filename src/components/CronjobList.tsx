@@ -31,11 +31,31 @@ interface CronjobListProps {
 }
 
 /**
+ * Konvertiert ein Date-Objekt in eine Cron-Expression (Minute Stunde * * *)
+ * Die Zeit wird in Europe/Berlin Zeitzone konvertiert
+ */
+function dateToCronExpression(date: Date): string {
+	// Konvertiere zu Europe/Berlin Zeitzone
+	const berlinTime = new Intl.DateTimeFormat("en-US", {
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+		timeZone: "Europe/Berlin",
+	}).formatToParts(date);
+
+	const hour = Number.parseInt(berlinTime.find((p) => p.type === "hour")?.value || "0", 10);
+	const minute = Number.parseInt(berlinTime.find((p) => p.type === "minute")?.value || "0", 10);
+
+	return `${minute} ${hour} * * *`;
+}
+
+/**
  * Findet den optimalen Zeitpunkt (niedrigster CO2-Wert) mindestens 1 Stunde in der Zukunft
  */
 function findOptimalTime(forecast: CarbonForecast | undefined): {
 	time: string;
 	rating: number;
+	cronExpression: string;
 } | null {
 	if (!forecast) return null;
 
@@ -66,9 +86,13 @@ function findOptimalTime(forecast: CarbonForecast | undefined): {
 		timeZone: "Europe/Berlin",
 	}).format(optimalTime);
 
+	// Konvertiere zu Cron-Expression
+	const cronExpression = dateToCronExpression(optimalTime);
+
 	return {
 		time: timeString,
 		rating: optimalEmission.Rating,
+		cronExpression,
 	};
 }
 
@@ -150,7 +174,11 @@ export function CronjobListComponent({ cronjobs, forecast }: CronjobListProps) {
 								<strong>{Math.round(optimalTime.rating)} g CO₂/kWh</strong>.
 							</Text>
 							<Text>
-								Passe deine Cronjobs an, um sie zu diesem Zeitpunkt auszuführen und Energie zu sparen.
+								<strong>Cron-Expression:</strong>{" "}
+								<InlineCode>{optimalTime.cronExpression}</InlineCode>
+							</Text>
+							<Text>
+								Kopiere diese Expression in das Interval-Feld deines Cronjobs, um ihn zu diesem optimalen Zeitpunkt auszuführen.
 							</Text>
 						</Flex>
 					</Section>
