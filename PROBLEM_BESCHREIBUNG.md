@@ -189,3 +189,4 @@ await updateCronjob(cleanedData); // Daten werden korrekt übergeben
 3. Alternative Lösungsansätze diskutieren
 4. Falls nötig: Middleware-Struktur anpassen oder umgehen
 
+

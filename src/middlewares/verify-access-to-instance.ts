@@ -25,11 +25,14 @@ export const verifyAccessToInstance = createMiddleware({
 			sendContext,
 		});
 	})
-	.server(async ({ next, context }) => {
+	.server(async ({ next, context, data }) => {
 		const contextWithToken = context as unknown as {
 			sessionToken: string;
 			projectId?: string;
 		};
+
+		console.log("verifyAccessToInstance.server - data:", data);
+		console.log("verifyAccessToInstance.server - data type:", typeof data);
 
 		const res = await verify(contextWithToken.sessionToken);
 

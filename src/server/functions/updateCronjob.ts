@@ -18,6 +18,10 @@ export const updateCronjob = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context, data }: { context: any; data: unknown }) => {
 		try {
+			console.log("updateCronjob.handler - data:", data);
+			console.log("updateCronjob.handler - data type:", typeof data);
+			console.log("updateCronjob.handler - context:", context);
+
 			if (!context) {
 				throw new Error("Context is required");
 			}
@@ -25,10 +29,18 @@ export const updateCronjob = createServerFn({ method: "POST" })
 
 			// With correct call signature ({ data: ... }), data should now be available
 			if (!data || typeof data !== "object") {
-				throw new Error("Invalid data: expected object, received null or invalid type");
+				console.error("updateCronjob.handler - Invalid data:", {
+					data,
+					dataType: typeof data,
+					isNull: data === null,
+					isUndefined: data === undefined,
+				});
+				throw new Error(`Invalid data: expected object, received ${data === null ? "null" : data === undefined ? "undefined" : typeof data}`);
 			}
 
+			console.log("updateCronjob.handler - Parsing data with schema...");
 			const validatedBody = UpdateCronjobSchema.parse(data);
+			console.log("updateCronjob.handler - Validated body:", validatedBody);
 
 			const { publicToken: accessToken } = await getAccessToken(
 				ctx.sessionToken,
