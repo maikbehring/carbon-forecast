@@ -15,22 +15,26 @@ const CreateCronjobSchema = z.object({
 
 export const createCronjob = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
-	.handler(async ({ context, data }: { context: { projectId?: string; sessionToken: string }; data: unknown }) => {
+	.handler(async ({ context, data }) => {
 		try {
-			if (!context.projectId) {
+			if (!context) {
+				throw new Error("Context is required");
+			}
+			const ctx = context as { projectId?: string; sessionToken: string };
+			if (!ctx.projectId) {
 				throw new Error("Project ID is required");
 			}
 
 			const validatedBody = CreateCronjobSchema.parse(data);
 
 			const { publicToken: accessToken } = await getAccessToken(
-				context.sessionToken,
+				ctx.sessionToken,
 				env.EXTENSION_SECRET,
 			);
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
 			const result = await client.cronjob.createCronjob({
-				projectId: context.projectId,
+				projectId: ctx.projectId,
 				data: {
 					appId: validatedBody.appId,
 					description: validatedBody.description,

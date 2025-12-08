@@ -8,19 +8,24 @@ export const getCronjobs = createServerFn({ method: "GET" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context }) => {
 		try {
+			if (!context) {
+				return [];
+			}
+			const ctx = context as { projectId?: string; sessionToken: string };
+
 			// Wenn kein projectId vorhanden ist (z.B. im Customer-Kontext), leeren Array zurückgeben
-			if (!context.projectId) {
+			if (!ctx.projectId) {
 				return [];
 			}
 
 			const { publicToken: accessToken } = await getAccessToken(
-				context.sessionToken,
+				ctx.sessionToken,
 				env.EXTENSION_SECRET,
 			);
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
 			const result = await client.cronjob.listCronjobs({
-				projectId: context.projectId,
+				projectId: ctx.projectId,
 			});
 
 			assertStatus(result, 200);

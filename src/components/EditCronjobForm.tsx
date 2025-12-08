@@ -71,26 +71,26 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 	}, [cronjob]);
 
 	const handleSubmit = async () => {
-		if (!cronjob.projectId) {
-			setError("Projekt-ID fehlt");
-			return;
-		}
-
 		setError(null);
 		setSuccess(false);
 		setIsSubmitting(true);
 
 		try {
-			await updateCronjob(
-				{
-					cronjobId: cronjob.id,
-					description,
-					interval,
-					destination,
-					timeout: timeoutValue ? Number.parseInt(timeoutValue, 10) : undefined,
-					active,
-				} as Parameters<typeof updateCronjob>[0],
+			const updateData = {
+				cronjobId: cronjob.id,
+				description: description || undefined,
+				interval: interval || undefined,
+				destination: destination || undefined,
+				timeout: timeoutValue ? Number.parseInt(timeoutValue, 10) : undefined,
+				active,
+			};
+
+			// Remove undefined values
+			const cleanedData = Object.fromEntries(
+				Object.entries(updateData).filter(([_, v]) => v !== undefined),
 			);
+
+			await updateCronjob(cleanedData as Parameters<typeof updateCronjob>[0]);
 
 			setSuccess(true);
 
@@ -186,14 +186,14 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 					</Section>
 				</Content>
 				<ActionGroup>
-					<Button 
-						color="accent" 
-						isDisabled={isSubmitting}
-						onPress={handleSubmit}
-					>
-						{isSubmitting ? "Wird gespeichert..." : "Speichern"}
-					</Button>
 					<Action closeOverlay="Modal">
+						<Button
+							color="accent"
+							isDisabled={isSubmitting}
+							onPress={handleSubmit}
+						>
+							{isSubmitting ? "Wird gespeichert..." : "Speichern"}
+						</Button>
 						<Button variant="soft" color="secondary">
 							Abbrechen
 						</Button>

@@ -20,8 +20,12 @@ export const getAllCronjobs = createServerFn({ method: "GET" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context }) => {
 		try {
+			if (!context) {
+				throw new Error("Context is required");
+			}
+			const ctx = context as { sessionToken: string };
 			const { publicToken: accessToken } = await getAccessToken(
-				context.sessionToken,
+				ctx.sessionToken,
 				env.EXTENSION_SECRET,
 			);
 

@@ -6,6 +6,9 @@ export const getHelloWorld = createServerFn({ method: "GET" })
 	.handler(async ({ context }) => {
 		// This is an example server function
 		// You can access the verified context here
+		if (!context) {
+			throw new Error("Context is required");
+		}
 		const { extensionInstanceId, userId, contextId } = context;
 
 		return {
