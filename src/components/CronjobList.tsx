@@ -41,7 +41,7 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 			<Text>
 				{cronjobs.length} von insgesamt {cronjobs.length} angezeigt
 			</Text>
-			<CronjobList.List aria-label="Cronjobs">
+			<CronjobList.List aria-label="Cronjobs" defaultViewMode="table">
 				<CronjobList.StaticData data={cronjobs} />
 				<CronjobList.Table>
 					<CronjobList.TableHeader>
