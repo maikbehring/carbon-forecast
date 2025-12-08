@@ -14,9 +14,7 @@ const UpdateCronjobSchema = z.object({
 	active: z.boolean().optional(),
 });
 
-// WORKAROUND: Remove method: "POST" to let TanStack Start auto-detect and parse body
-// This is a workaround for TanStack Start v1.131.48 bug where POST body is parsed AFTER middleware
-export const updateCronjob = createServerFn()
+export const updateCronjob = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context, data }) => {
 		try {

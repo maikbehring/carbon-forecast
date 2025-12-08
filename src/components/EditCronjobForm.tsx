@@ -90,6 +90,7 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 				Object.entries(updateData).filter(([_, v]) => v !== undefined),
 			);
 
+			console.log("EditCronjobForm - calling updateCronjob with data:", cleanedData);
 			await updateCronjob(cleanedData as Parameters<typeof updateCronjob>[0]);
 
 			setSuccess(true);
