@@ -49,7 +49,7 @@ export function CreateCronjobForm() {
 			setTimeout("");
 
 			// Invalidate cronjobs query to refresh the list
-			queryClient.invalidateQueries({ queryKey: ["cronjobs"] });
+			queryClient.invalidateQueries({ queryKey: ["allCronjobs"] });
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Fehler beim Erstellen des Cronjobs");
 		} finally {

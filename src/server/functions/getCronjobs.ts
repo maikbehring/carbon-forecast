@@ -8,8 +8,9 @@ export const getCronjobs = createServerFn({ method: "GET" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context }) => {
 		try {
+			// Wenn kein projectId vorhanden ist (z.B. im Customer-Kontext), leeren Array zurückgeben
 			if (!context.projectId) {
-				throw new Error("Project ID is required");
+				return [];
 			}
 
 			const { publicToken: accessToken } = await getAccessToken(
@@ -25,10 +26,9 @@ export const getCronjobs = createServerFn({ method: "GET" })
 			assertStatus(result, 200);
 			return result.data;
 		} catch (error) {
-			if (error instanceof Error) {
-				throw error;
-			}
-			throw new Error("Unknown error while fetching cronjobs");
+			// Bei Fehlern leeren Array zurückgeben statt Fehler zu werfen
+			console.error("Error fetching cronjobs:", error);
+			return [];
 		}
 	});
 

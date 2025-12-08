@@ -14,6 +14,8 @@ interface Cronjob {
 	timeout?: number;
 	active?: boolean;
 	appId?: string;
+	projectId?: string;
+	projectName?: string;
 }
 
 const CronjobList = typedList<Cronjob>();
@@ -42,6 +44,11 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 						<CronjobList.ItemView>
 							<Content>
 								<Heading level={3}>{cronjob.description || "Unbenannter Cronjob"}</Heading>
+								{cronjob.projectName && (
+									<Text>
+										<strong>Projekt:</strong> {cronjob.projectName}
+									</Text>
+								)}
 								{cronjob.interval && (
 									<Text>
 										<strong>Interval:</strong> {cronjob.interval}

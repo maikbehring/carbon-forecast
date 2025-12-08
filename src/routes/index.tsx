@@ -14,7 +14,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCarbonForecast } from "~/server/functions/getCarbonForecast";
-import { getCronjobs } from "~/server/functions/getCronjobs";
+import { getAllCronjobs } from "~/server/functions/getAllCronjobs";
 import { CarbonForecast } from "~/components/CarbonForecast";
 import { CronjobListComponent } from "~/components/CronjobList";
 import { CreateCronjobForm } from "~/components/CreateCronjobForm";
@@ -44,8 +44,8 @@ function RouteComponent() {
 		isLoading: isLoadingCronjobs,
 		error: cronjobsError,
 	} = useQuery({
-		queryKey: ["cronjobs"],
-		queryFn: () => getCronjobs(),
+		queryKey: ["allCronjobs"],
+		queryFn: () => getAllCronjobs(),
 		staleTime: 30 * 1000, // 30 seconds
 	});
 
