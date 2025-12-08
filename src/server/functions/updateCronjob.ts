@@ -57,6 +57,11 @@ export const updateCronjob = createServerFn({ method: "POST" })
 				updateData.active = validatedBody.active;
 			}
 
+			// Ensure at least one field is provided
+			if (Object.keys(updateData).length === 0) {
+				throw new Error("At least one field must be provided for update");
+			}
+
 			const result = await client.cronjob.updateCronjob({
 				cronjobId: validatedBody.cronjobId,
 				data: updateData,
@@ -69,8 +74,10 @@ export const updateCronjob = createServerFn({ method: "POST" })
 				throw new Error(`Validation error: ${error.errors.map((e) => e.message).join(", ")}`);
 			}
 			if (error instanceof Error) {
+				console.error("Error updating cronjob:", error.message, error);
 				throw error;
 			}
+			console.error("Unknown error while updating cronjob:", error);
 			throw new Error("Unknown error while updating cronjob");
 		}
 	});
