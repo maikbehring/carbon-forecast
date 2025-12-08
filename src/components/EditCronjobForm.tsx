@@ -91,7 +91,7 @@ export function EditCronjobForm({ cronjob }: EditCronjobFormProps) {
 			);
 
 			console.log("EditCronjobForm - calling updateCronjob with data:", cleanedData);
-			await updateCronjob(cleanedData as Parameters<typeof updateCronjob>[0]);
+			await updateCronjob({ data: cleanedData } as any);
 
 			setSuccess(true);
 

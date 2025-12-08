@@ -30,15 +30,15 @@ export function CreateCronjobForm() {
 		setIsSubmitting(true);
 
 		try {
-			await createCronjob(
-				{
+			await createCronjob({
+				data: {
 					appId,
 					description,
 					interval,
 					destination,
 					timeout: timeout ? Number.parseInt(timeout, 10) : undefined,
-				} as Parameters<typeof createCronjob>[0],
-			);
+				},
+			} as any);
 
 			setSuccess(true);
 			setAppId("");

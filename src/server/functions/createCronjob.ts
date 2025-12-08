@@ -15,7 +15,7 @@ const CreateCronjobSchema = z.object({
 
 export const createCronjob = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
-	.handler(async ({ context, data }) => {
+	.handler(async ({ context, data }: { context: any; data: unknown }) => {
 		try {
 			if (!context) {
 				throw new Error("Context is required");
@@ -23,6 +23,11 @@ export const createCronjob = createServerFn({ method: "POST" })
 			const ctx = context as { projectId?: string; sessionToken: string };
 			if (!ctx.projectId) {
 				throw new Error("Project ID is required");
+			}
+
+			// With correct call signature ({ data: ... }), data should now be available
+			if (!data || typeof data !== "object") {
+				throw new Error("Invalid data: expected object, received null or invalid type");
 			}
 
 			const validatedBody = CreateCronjobSchema.parse(data);

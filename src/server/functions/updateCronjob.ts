@@ -16,37 +16,19 @@ const UpdateCronjobSchema = z.object({
 
 export const updateCronjob = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
-	.handler(async ({ context, data }) => {
+	.handler(async ({ context, data }: { context: any; data: unknown }) => {
 		try {
 			if (!context) {
 				throw new Error("Context is required");
 			}
-			const ctx = context as { sessionToken: string; _data?: unknown };
+			const ctx = context as { sessionToken: string };
 
-		// WORKAROUND: Use data from context._data if data parameter is null
-		// This is needed because TanStack Start v1.131.48 parses body AFTER middleware
-		let parsedData: unknown = data;
-		console.log("updateCronjob - data:", data);
-		console.log("updateCronjob - context._data:", ctx._data);
-		
-		if (
-			(parsedData === null || parsedData === undefined) &&
-			ctx._data !== undefined
-		) {
-			console.log("updateCronjob - Using context._data as fallback");
-			parsedData = ctx._data;
-		}
+			// With correct call signature ({ data: ... }), data should now be available
+			if (!data || typeof data !== "object") {
+				throw new Error("Invalid data: expected object, received null or invalid type");
+			}
 
-		if (!parsedData || typeof parsedData !== "object") {
-			console.error("updateCronjob - Invalid data:", {
-				data,
-				contextData: ctx._data,
-				parsedData,
-			});
-			throw new Error("Invalid data: expected object, received null or invalid type");
-		}
-
-			const validatedBody = UpdateCronjobSchema.parse(parsedData);
+			const validatedBody = UpdateCronjobSchema.parse(data);
 
 			const { publicToken: accessToken } = await getAccessToken(
 				ctx.sessionToken,
