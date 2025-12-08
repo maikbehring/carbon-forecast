@@ -6,8 +6,10 @@ import {
 	Badge,
 	InlineCode,
 	Flex,
+	AccentBox,
 } from "@mittwald/flow-remote-react-components";
 import { EditCronjobForm } from "./EditCronjobForm";
+import type { CarbonForecast } from "~/server/functions/getCarbonForecast";
 
 interface Cronjob {
 	id: string;
@@ -25,6 +27,49 @@ const CronjobList = typedList<Cronjob>();
 
 interface CronjobListProps {
 	cronjobs: Cronjob[];
+	forecast?: CarbonForecast;
+}
+
+/**
+ * Findet den optimalen Zeitpunkt (niedrigster CO2-Wert) mindestens 1 Stunde in der Zukunft
+ */
+function findOptimalTime(forecast: CarbonForecast | undefined): {
+	time: string;
+	rating: number;
+} | null {
+	if (!forecast) return null;
+
+	const now = new Date();
+	const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
+
+	// Filtere Emissions-Datenpunkte, die mindestens 1 Stunde in der Zukunft liegen
+	const futureEmissions = forecast.Emissions.filter((emission) => {
+		const emissionTime = new Date(emission.Time);
+		return emissionTime >= oneHourFromNow;
+	});
+
+	if (futureEmissions.length === 0) return null;
+
+	// Finde den niedrigsten CO2-Wert
+	const optimalEmission = futureEmissions.reduce((min, e) =>
+		e.Rating < min.Rating ? e : min,
+	);
+
+	// Formatiere die Zeit
+	const optimalTime = new Date(optimalEmission.Time);
+	const timeString = new Intl.DateTimeFormat("de-DE", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+		timeZone: "Europe/Berlin",
+	}).format(optimalTime);
+
+	return {
+		time: timeString,
+		rating: optimalEmission.Rating,
+	};
 }
 
 /**
@@ -77,7 +122,9 @@ function isVeryFrequent(interval: string): boolean {
 	return false;
 }
 
-export function CronjobListComponent({ cronjobs }: CronjobListProps) {
+export function CronjobListComponent({ cronjobs, forecast }: CronjobListProps) {
+	const optimalTime = findOptimalTime(forecast);
+
 	if (cronjobs.length === 0) {
 		return (
 			<Section>
@@ -90,6 +137,25 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 	return (
 		<Section>
 			<Heading level={2}>Cronjobs</Heading>
+			{optimalTime && (
+				<AccentBox color="green">
+					<Section>
+						<Flex direction="column" gap="xs">
+							<Heading level={3}>
+								💡 Optimaler Zeitpunkt für energieintensive Cronjobs
+							</Heading>
+							<Text>
+								Der beste Zeitpunkt mit dem geringsten CO₂-Verbrauch ist{" "}
+								<strong>{optimalTime.time} Uhr</strong> mit{" "}
+								<strong>{Math.round(optimalTime.rating)} g CO₂/kWh</strong>.
+							</Text>
+							<Text>
+								Passe deine Cronjobs an, um sie zu diesem Zeitpunkt auszuführen und Energie zu sparen.
+							</Text>
+						</Flex>
+					</Section>
+				</AccentBox>
+			)}
 			<Text>
 				{cronjobs.length} von insgesamt {cronjobs.length} angezeigt
 			</Text>

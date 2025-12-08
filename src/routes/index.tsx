@@ -409,7 +409,7 @@ async function getCarbonForecast() {
 						/>
 					) : (
 						<Content>
-							<CronjobListComponent cronjobs={cronjobs || []} />
+							<CronjobListComponent cronjobs={cronjobs || []} forecast={forecast} />
 							<CreateCronjobForm />
 						</Content>
 					)}
