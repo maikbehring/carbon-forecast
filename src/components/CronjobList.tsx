@@ -7,6 +7,7 @@ import {
 	InlineCode,
 	Flex,
 } from "@mittwald/flow-remote-react-components";
+import { EditCronjobForm } from "./EditCronjobForm";
 
 interface Cronjob {
 	id: string;
@@ -102,6 +103,7 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 						<CronjobList.TableColumn>Interval</CronjobList.TableColumn>
 						<CronjobList.TableColumn>Destination</CronjobList.TableColumn>
 						<CronjobList.TableColumn>Timeout</CronjobList.TableColumn>
+						<CronjobList.TableColumn>Aktionen</CronjobList.TableColumn>
 					</CronjobList.TableHeader>
 					<CronjobList.TableBody>
 						<CronjobList.TableRow>
@@ -156,6 +158,9 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 								{(cronjob) =>
 									cronjob.timeout ? `${cronjob.timeout} Sekunden` : "-"
 								}
+							</CronjobList.TableCell>
+							<CronjobList.TableCell>
+								{(cronjob) => <EditCronjobForm cronjob={cronjob} />}
 							</CronjobList.TableCell>
 						</CronjobList.TableRow>
 					</CronjobList.TableBody>
