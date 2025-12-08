@@ -14,7 +14,10 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCarbonForecast } from "~/server/functions/getCarbonForecast";
+import { getCronjobs } from "~/server/functions/getCronjobs";
 import { CarbonForecast } from "~/components/CarbonForecast";
+import { CronjobListComponent } from "~/components/CronjobList";
+import { CreateCronjobForm } from "~/components/CreateCronjobForm";
 import { Loader } from "~/components/Loader";
 import { ErrorMessage } from "~/components/ErrorMessage";
 
@@ -34,6 +37,16 @@ function RouteComponent() {
 		queryKey: ["carbonForecast"],
 		queryFn: () => getCarbonForecast(),
 		staleTime: 15 * 60 * 1000, // 15 minutes - forecast updates every 15 minutes
+	});
+
+	const {
+		data: cronjobs,
+		isLoading: isLoadingCronjobs,
+		error: cronjobsError,
+	} = useQuery({
+		queryKey: ["cronjobs"],
+		queryFn: () => getCronjobs(),
+		staleTime: 30 * 1000, // 30 seconds
 	});
 
 	if (isLoading) {
@@ -380,6 +393,26 @@ async function getCarbonForecast() {
 							</AccentBox>
 						</Section>
 					</Section>
+				</Tab>
+				<Tab>
+					<TabTitle>Cronjobs</TabTitle>
+					{isLoadingCronjobs ? (
+						<Loader />
+					) : cronjobsError ? (
+						<ErrorMessage
+							title="Fehler beim Laden der Cronjobs"
+							message={
+								cronjobsError instanceof Error
+									? cronjobsError.message
+									: "Unbekannter Fehler"
+							}
+						/>
+					) : (
+						<Content>
+							<CronjobListComponent cronjobs={cronjobs || []} />
+							<CreateCronjobForm />
+						</Content>
+					)}
 				</Tab>
 			</Tabs>
 		</Content>
