@@ -66,23 +66,47 @@ export const updateCronjob = createServerFn({ method: "POST" })
 				throw new Error("At least one field must be provided for update");
 			}
 
-			const result = await client.cronjob.updateCronjob({
-				cronjobId: validatedBody.cronjobId,
-				data: updateData,
-			});
+		const result = await client.cronjob.updateCronjob({
+			cronjobId: validatedBody.cronjobId,
+			data: updateData,
+		});
 
-			assertStatus(result, 204);
-			return result.data;
-		} catch (error) {
-			if (error instanceof z.ZodError) {
-				throw new Error(`Validation error: ${error.errors.map((e) => e.message).join(", ")}`);
-			}
-			if (error instanceof Error) {
-				console.error("Error updating cronjob:", error.message, error);
+		// Check for 403 Permission Denied before asserting status
+		// Type assertion needed because assertStatus narrows the type
+		const status = (result as any).status;
+		if (status === 403) {
+			console.error("Permission denied (403) when updating cronjob:", {
+				cronjobId: validatedBody.cronjobId,
+				status,
+				response: (result as any).data,
+			});
+			throw new Error(
+				"Zugriff verweigert: Die Extension hat keine Berechtigung, Cronjobs zu aktualisieren. Bitte prüfe die Extension-Scopes in mStudio.",
+			);
+		}
+
+		assertStatus(result, 204);
+		return result.data;
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			throw new Error(`Validation error: ${error.errors.map((e) => e.message).join(", ")}`);
+		}
+		if (error instanceof Error) {
+			console.error("Error updating cronjob:", error.message, error);
+			// Don't re-throw if it's already a user-friendly error message
+			if (error.message.includes("Zugriff verweigert") || error.message.includes("Permission denied")) {
 				throw error;
 			}
-			console.error("Unknown error while updating cronjob:", error);
-			throw new Error("Unknown error while updating cronjob");
+			// For other errors, check if it's an API client error
+			if ("status" in error && (error as any).status === 403) {
+				throw new Error(
+					"Zugriff verweigert: Die Extension hat keine Berechtigung, Cronjobs zu aktualisieren. Bitte prüfe die Extension-Scopes in mStudio.",
+				);
+			}
+			throw error;
 		}
+		console.error("Unknown error while updating cronjob:", error);
+		throw new Error("Unknown error while updating cronjob");
+	}
 	});
 
