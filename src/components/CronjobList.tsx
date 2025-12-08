@@ -5,7 +5,6 @@ import {
 	typedList,
 	Badge,
 	InlineCode,
-	Flex,
 } from "@mittwald/flow-remote-react-components";
 
 interface Cronjob {
@@ -36,76 +35,68 @@ export function CronjobListComponent({ cronjobs }: CronjobListProps) {
 		);
 	}
 
-	// Gruppiere Cronjobs nach Projekt
-	const cronjobsByProject = cronjobs.reduce(
-		(acc, cronjob) => {
-			const projectName = cronjob.projectName || "Unbekanntes Projekt";
-			if (!acc[projectName]) {
-				acc[projectName] = [];
-			}
-			acc[projectName].push(cronjob);
-			return acc;
-		},
-		{} as Record<string, Cronjob[]>,
-	);
-
 	return (
-		<>
-			<Section>
-				<Heading level={2}>Cronjobs</Heading>
-				<Text>
-					{cronjobs.length} von insgesamt {cronjobs.length} angezeigt
-				</Text>
-			</Section>
-			{Object.entries(cronjobsByProject).map(([projectName, projectCronjobs]) => (
-				<Section key={projectName}>
-					<Heading level={3}>{projectName}</Heading>
-					<CronjobList.List aria-label={`Cronjobs für ${projectName}`}>
-						<CronjobList.StaticData data={projectCronjobs} />
-						<CronjobList.Item>
-							{(cronjob) => (
-								<CronjobList.ItemView>
-									<Flex justify="start" gap="s">
-										<Heading level={4}>
-											{cronjob.description || "Unbenannter Cronjob"}
-										</Heading>
-										{cronjob.active !== undefined && (
-											<Badge color={cronjob.active ? "green" : "neutral"}>
-												{cronjob.active ? "Aktiv" : "Inaktiv"}
-											</Badge>
-										)}
-									</Flex>
-									{cronjob.interval && (
-										<Text>
-											<strong>Interval:</strong>{" "}
-											<InlineCode>{cronjob.interval}</InlineCode>
-										</Text>
-									)}
-									<Text>
-										<strong>Destination:</strong>{" "}
-										{typeof cronjob.destination === "string" ? (
-											<InlineCode>{cronjob.destination}</InlineCode>
-										) : "url" in cronjob.destination ? (
-											<InlineCode>{cronjob.destination.url}</InlineCode>
-										) : (
-											<InlineCode>{cronjob.destination.path}</InlineCode>
-										)}
-									</Text>
-									{cronjob.timeout && (
-										<Text>
-											<strong>Timeout:</strong> {cronjob.timeout} Sekunden
-										</Text>
-									)}
-								</CronjobList.ItemView>
-							)}
-						</CronjobList.Item>
-					</CronjobList.List>
-					<Text>
-						{projectCronjobs.length} von insgesamt {projectCronjobs.length} angezeigt
-					</Text>
-				</Section>
-			))}
-		</>
+		<Section>
+			<Heading level={2}>Cronjobs</Heading>
+			<Text>
+				{cronjobs.length} von insgesamt {cronjobs.length} angezeigt
+			</Text>
+			<CronjobList.List aria-label="Cronjobs">
+				<CronjobList.StaticData data={cronjobs} />
+				<CronjobList.Table>
+					<CronjobList.TableHeader>
+						<CronjobList.TableColumn>Projekt</CronjobList.TableColumn>
+						<CronjobList.TableColumn>Beschreibung</CronjobList.TableColumn>
+						<CronjobList.TableColumn>Status</CronjobList.TableColumn>
+						<CronjobList.TableColumn>Interval</CronjobList.TableColumn>
+						<CronjobList.TableColumn>Destination</CronjobList.TableColumn>
+						<CronjobList.TableColumn>Timeout</CronjobList.TableColumn>
+					</CronjobList.TableHeader>
+					<CronjobList.TableBody>
+						<CronjobList.TableRow>
+							<CronjobList.TableCell>
+								{(cronjob) => cronjob.projectName || "Unbekanntes Projekt"}
+							</CronjobList.TableCell>
+							<CronjobList.TableCell>
+								{(cronjob) => cronjob.description || "Unbenannter Cronjob"}
+							</CronjobList.TableCell>
+							<CronjobList.TableCell>
+								{(cronjob) =>
+									cronjob.active !== undefined ? (
+										<Badge color={cronjob.active ? "green" : "neutral"}>
+											{cronjob.active ? "Aktiv" : "Inaktiv"}
+										</Badge>
+									) : (
+										"-"
+									)
+								}
+							</CronjobList.TableCell>
+							<CronjobList.TableCell>
+								{(cronjob) =>
+									cronjob.interval ? <InlineCode>{cronjob.interval}</InlineCode> : "-"
+								}
+							</CronjobList.TableCell>
+							<CronjobList.TableCell>
+								{(cronjob) => {
+									if (typeof cronjob.destination === "string") {
+										return <InlineCode>{cronjob.destination}</InlineCode>;
+									}
+									if ("url" in cronjob.destination) {
+										return <InlineCode>{cronjob.destination.url}</InlineCode>;
+									}
+									return <InlineCode>{cronjob.destination.path}</InlineCode>;
+								}}
+							</CronjobList.TableCell>
+							<CronjobList.TableCell>
+								{(cronjob) =>
+									cronjob.timeout ? `${cronjob.timeout} Sekunden` : "-"
+								}
+							</CronjobList.TableCell>
+						</CronjobList.TableRow>
+					</CronjobList.TableBody>
+				</CronjobList.Table>
+			</CronjobList.List>
+		</Section>
 	);
 }
 
