@@ -24,8 +24,7 @@ export function CreateCronjobForm() {
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState(false);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleSubmit = async () => {
 		setError(null);
 		setSuccess(false);
 		setIsSubmitting(true);
@@ -61,85 +60,81 @@ export function CreateCronjobForm() {
 		<Section>
 			<Heading level={2}>Neuen Cronjob erstellen</Heading>
 			<Content>
-				<form onSubmit={handleSubmit}>
-					<Content>
-						<TextField
-							value={appId}
-							onChange={setAppId}
-							isRequired
-							placeholder="app-xxxxx"
-						>
-							<Label>App ID</Label>
-							<FieldDescription>
-								Die ID der App, der dieser Cronjob zugeordnet werden soll
-							</FieldDescription>
-						</TextField>
+				<TextField
+					value={appId}
+					onChange={setAppId}
+					isRequired
+					placeholder="app-xxxxx"
+				>
+					<Label>App ID</Label>
+					<FieldDescription>
+						Die ID der App, der dieser Cronjob zugeordnet werden soll
+					</FieldDescription>
+				</TextField>
 
-						<TextField
-							value={description}
-							onChange={setDescription}
-							isRequired
-							placeholder="z.B. Tägliches Backup"
-						>
-							<Label>Beschreibung</Label>
-							<FieldDescription>
-								Ein beschreibender Name für den Cronjob
-							</FieldDescription>
-						</TextField>
+				<TextField
+					value={description}
+					onChange={setDescription}
+					isRequired
+					placeholder="z.B. Tägliches Backup"
+				>
+					<Label>Beschreibung</Label>
+					<FieldDescription>
+						Ein beschreibender Name für den Cronjob
+					</FieldDescription>
+				</TextField>
 
-						<TextField
-							value={interval}
-							onChange={setInterval}
-							isRequired
-							placeholder="0 2 * * *"
-						>
-							<Label>Interval (Cron-Expression)</Label>
-							<FieldDescription>
-								Cron-Expression im Format: Minute Stunde Tag Monat Wochentag
-							</FieldDescription>
-						</TextField>
+				<TextField
+					value={interval}
+					onChange={setInterval}
+					isRequired
+					placeholder="0 2 * * *"
+				>
+					<Label>Interval (Cron-Expression)</Label>
+					<FieldDescription>
+						Cron-Expression im Format: Minute Stunde Tag Monat Wochentag
+					</FieldDescription>
+				</TextField>
 
-						<TextField
-							value={destination}
-							onChange={setDestination}
-							isRequired
-							placeholder="https://example.com/webhook"
-						>
-							<Label>Destination</Label>
-							<FieldDescription>
-								URL oder Endpunkt, der beim Ausführen des Cronjobs aufgerufen wird
-							</FieldDescription>
-						</TextField>
+				<TextField
+					value={destination}
+					onChange={setDestination}
+					isRequired
+					placeholder="https://example.com/webhook"
+				>
+					<Label>Destination</Label>
+					<FieldDescription>
+						URL oder Endpunkt, der beim Ausführen des Cronjobs aufgerufen wird
+					</FieldDescription>
+				</TextField>
 
-						<TextField
-							type="number"
-							value={timeout}
-							onChange={setTimeout}
-							placeholder="300"
-						>
-							<Label>Timeout (optional)</Label>
-							<FieldDescription>
-								Timeout in Sekunden (optional)
-							</FieldDescription>
-						</TextField>
+				<TextField
+					type="number"
+					value={timeout}
+					onChange={setTimeout}
+					placeholder="300"
+				>
+					<Label>Timeout (optional)</Label>
+					<FieldDescription>
+						Timeout in Sekunden (optional)
+					</FieldDescription>
+				</TextField>
 
-						{error && (
-							<Alert status="danger">
-								<Text>{error}</Text>
-							</Alert>
-						)}
+				{error && (
+					<Alert status="danger">
+						<Text>{error}</Text>
+					</Alert>
+				)}
 
-						{success && (
-							<Alert status="success">
-								<Text>Cronjob erfolgreich erstellt!</Text>
-							</Alert>
-						)}
+				{success && (
+					<Alert status="success">
+						<Text>Cronjob erfolgreich erstellt!</Text>
+					</Alert>
+				)}
 
-						<Button type="submit" isDisabled={isSubmitting}>
-							{isSubmitting ? "Wird erstellt..." : "Cronjob erstellen"}
-						</Button>
-					</Content>
-				</form>
+				<Button onPress={handleSubmit} isDisabled={isSubmitting}>
+					{isSubmitting ? "Wird erstellt..." : "Cronjob erstellen"}
+				</Button>
 			</Content>
 		</Section>
 	);
