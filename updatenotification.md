@@ -30,7 +30,112 @@ src/
 
 # Developer Documentation: TanStack Start POST + Middleware + Body Bug
 
-## Problembeschreibung
+## ⚠️ WICHTIG: Die finale Lösung (TanStack Start v1.131.48)
+
+**Das Hauptproblem war nicht der Body-Parsing, sondern der falsche Aufruf der Server-Funktion!**
+
+### Der kritische Bug: Falscher Aufruf-Signatur
+
+`createServerFn` erwartet ein Objekt mit einer `data`-Property, nicht die Daten direkt!
+
+```typescript
+// ❌ FALSCH - Daten gehen verloren!
+await updateCronjob(cleanedData);
+
+// ✅ RICHTIG - Daten werden korrekt übertragen
+await updateCronjob({ data: cleanedData });
+```
+
+### Warum passiert das?
+
+Intern passiert folgendes:
+1. `cleanedData` wird als `opts` interpretiert
+2. `opts.data` ist `undefined`, weil `cleanedData.data` nicht existiert
+3. Der HTTP-Request geht ohne `data` raus → `data` auf dem Server ist `null`
+
+### Die komplette Lösung für v1.131.48
+
+**1. Client-Aufruf korrigieren:**
+
+```typescript
+// In der Komponente (z.B. EditCronjobForm.tsx)
+const cleanedData = {
+  cronjobId: cronjob.id,
+  description: description || undefined,
+  interval: interval || undefined,
+  destination: destination || undefined,
+  timeout: timeoutValue ? Number.parseInt(timeoutValue, 10) : undefined,
+  active,
+};
+
+// ✅ RICHTIG: Daten in { data: ... } wrappen
+await updateCronjob({ data: cleanedData } as any);
+```
+
+**2. Middleware muss `data` explizit weitergeben:**
+
+```typescript
+// src/middlewares/verify-access-to-instance.ts
+.server(async ({ next, context, data }) => {
+  const contextWithToken = context as unknown as {
+    sessionToken: string;
+    projectId?: string;
+  };
+
+  const res = await verify(contextWithToken.sessionToken);
+
+  // ✅ WICHTIG: data explizit weitergeben
+  return (next as any)({
+    context: {
+      extensionInstanceId: res.extensionInstanceId,
+      extensionId: res.extensionId,
+      userId: res.userId,
+      contextId: res.contextId,
+      projectId: contextWithToken.projectId,
+    },
+    data, // ← Daten explizit weitergeben!
+  });
+});
+```
+
+**3. Server-Funktion validiert Daten manuell:**
+
+```typescript
+// src/server/functions/updateCronjob.ts
+export const updateCronjob = createServerFn({ method: "POST" })
+  .middleware([verifyAccessToInstance])
+  .handler(async ({ context, data }: { context: any; data: unknown }) => {
+    if (!context) {
+      throw new Error("Context is required");
+    }
+    const ctx = context as { sessionToken: string };
+
+    // Manuelle Validierung (inputValidator nicht verfügbar in v1.131.48)
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid data: expected object");
+    }
+    const validatedBody = UpdateCronjobSchema.parse(data);
+
+    // Weiterer Code...
+  });
+```
+
+### Checkliste für POST-Requests mit Middleware (v1.131.48)
+
+- [ ] **Client-Aufruf**: `await myServerFn({ data: myData })` statt `await myServerFn(myData)`
+- [ ] **Middleware**: `data` explizit weitergeben mit `(next as any)({ context, data })`
+- [ ] **Handler**: Manuelle Validierung mit Zod Schema
+- [ ] **TypeScript**: `as any` für Type-Assertions (nötig wegen Middleware-Typen)
+
+### Erwartetes Verhalten nach dem Fix
+
+- ✅ Client-Middleware erhält `data`: `verifyAccessToInstance.client - data: {cronjobId: '...', ...}`
+- ✅ Server-Middleware erhält `data`: `verifyAccessToInstance.server - data: {cronjobId: '...', ...}`
+- ✅ Handler erhält `data`: `updateCronjob.handler - data: {cronjobId: '...', ...}`
+
+---
+
+## Problembeschreibung (ursprüngliches Problem)
 
 Bei TanStack Start Server Functions mit Middleware und POST-Requests geht der Request-Body (`data`) verloren. Obwohl der Client die Daten korrekt sendet, kommt in der Server-Middleware und im Handler `null` oder `undefined` an.
 
