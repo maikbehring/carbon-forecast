@@ -25,11 +25,10 @@ export const createCronjob = createServerFn({ method: "POST" })
 				throw new Error("Project ID is required");
 			}
 
-			// With correct call signature ({ data: ... }), data should now be available
+			// Validate data manually (inputValidator not available in v1.131.48)
 			if (!data || typeof data !== "object") {
-				throw new Error("Invalid data: expected object, received null or invalid type");
+				throw new Error("Invalid data: expected object");
 			}
-
 			const validatedBody = CreateCronjobSchema.parse(data);
 
 			const { publicToken: accessToken } = await getAccessToken(

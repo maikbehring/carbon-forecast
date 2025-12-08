@@ -36,7 +36,8 @@ export const verifyAccessToInstance = createMiddleware({
 
 		const res = await verify(contextWithToken.sessionToken);
 
-		return next({
+		// Pass data through - needed for POST requests
+		return (next as any)({
 			context: {
 				extensionInstanceId: res.extensionInstanceId,
 				extensionId: res.extensionId,
@@ -44,5 +45,6 @@ export const verifyAccessToInstance = createMiddleware({
 				contextId: res.contextId,
 				projectId: contextWithToken.projectId,
 			},
+			data, // Pass data through to handler
 		});
 	});

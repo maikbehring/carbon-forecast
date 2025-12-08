@@ -9,7 +9,8 @@ export const getHelloWorld = createServerFn({ method: "GET" })
 		if (!context) {
 			throw new Error("Context is required");
 		}
-		const { extensionInstanceId, userId, contextId } = context;
+		const ctx = context as unknown as { extensionInstanceId: string; userId: string; contextId: string };
+		const { extensionInstanceId, userId, contextId } = ctx;
 
 		return {
 			message: "Hello World from your mittwald Extension!",
