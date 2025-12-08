@@ -34,6 +34,10 @@ export const verifyAccessToInstance = createMiddleware({
 		});
 	})
 	.server(async ({ next, context, data }) => {
+		// Log the entire context to see what we're receiving
+		console.log("verifyAccessToInstance.server - full context:", JSON.stringify(context, null, 2));
+		console.log("verifyAccessToInstance.server - data:", data);
+		
 		const contextWithToken = context as unknown as {
 			sessionToken: string;
 			projectId?: string;
@@ -44,7 +48,6 @@ export const verifyAccessToInstance = createMiddleware({
 
 		// WORKAROUND: Use data from sendContext if data parameter is null
 		let parsedData: unknown = data;
-		console.log("verifyAccessToInstance.server - data:", data);
 		console.log("verifyAccessToInstance.server - context._data:", contextWithToken._data);
 		
 		if (
