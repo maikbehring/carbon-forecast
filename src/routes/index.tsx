@@ -7,9 +7,17 @@ import {
 	Heading,
 	Text,
 	Accordion,
-	AccentBox,
 	InlineCode,
 	CodeBlock,
+	LabeledValue,
+	Label,
+	CopyButton,
+	Table,
+	TableHeader,
+	TableColumn,
+	TableBody,
+	TableRow,
+	TableCell,
 } from "@mittwald/flow-remote-react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -146,9 +154,6 @@ function RouteComponent() {
 								</Text>
 							</Content>
 						</Accordion>
-					</Section>
-
-					<Section>
 						<Accordion variant="outline">
 							<Heading level={3}>Nutzung im Tech-Bereich</Heading>
 							<Content>
@@ -186,9 +191,6 @@ function RouteComponent() {
 								</Text>
 							</Content>
 						</Accordion>
-					</Section>
-
-					<Section>
 						<Accordion variant="outline">
 							<Heading level={3}>Nutzung außerhalb des Tech-Bereichs</Heading>
 							<Content>
@@ -230,46 +232,77 @@ function RouteComponent() {
 					</Section>
 
 					<Section>
-						<Heading level={2}>API-Integration in eigenen Scripten</Heading>
+						<Heading level={3}>API-Integration in eigenen Scripten</Heading>
 						<Text>
 							Die Carbon Forecast API ist öffentlich verfügbar und kann einfach in
 							eigene Automatisierungen integriert werden. Die Daten werden alle 15
 							Minuten aktualisiert.
 						</Text>
 
-						<AccentBox color="blue">
-							<Section>
-								<Heading level={3}>API-Endpunkt</Heading>
-								<Text>
-									<InlineCode>
-										https://carbonawarecomputing.blob.core.windows.net/forecasts/de.json
-									</InlineCode>
-								</Text>
-								<Text>
-									Die API liefert ein JSON-Objekt mit folgenden Feldern:
-								</Text>
-								<Text>
-									• <InlineCode>GeneratedAt</InlineCode>: Zeitstempel der
-									Generierung
-									<br />
-									• <InlineCode>Emissions</InlineCode>: Array von
-									Datenpunkten mit:
-									<br />
-									&nbsp;&nbsp;- <InlineCode>Time</InlineCode>: ISO 8601
-									Zeitstempel
-									<br />
-									&nbsp;&nbsp;- <InlineCode>Rating</InlineCode>: CO₂-Intensität
-									in g CO₂/kWh
-									<br />
-									&nbsp;&nbsp;- <InlineCode>Duration</InlineCode>: Dauer des
-									Intervalls (meist "PT15M" für 15 Minuten)
-								</Text>
-							</Section>
-						</AccentBox>
+						<LabeledValue>
+							<Label>API-Endpunkt</Label>
+							<Content>
+								<InlineCode>
+									https://carbonawarecomputing.blob.core.windows.net/forecasts/de.json
+								</InlineCode>
+								<CopyButton text="https://carbonawarecomputing.blob.core.windows.net/forecasts/de.json" />
+							</Content>
+						</LabeledValue>
 
-						<Section>
-							<Accordion variant="outline">
-								<Heading level={3}>Code-Beispiele</Heading>
+						<Text>
+							Die API liefert ein JSON-Objekt mit folgenden Feldern:
+						</Text>
+
+						<Table aria-label="JSON-Objekt Felder">
+							<TableHeader>
+								<TableColumn>Beschreibung</TableColumn>
+								<TableColumn>Feld</TableColumn>
+							</TableHeader>
+							<TableBody>
+								<TableRow>
+									<TableCell>Zeitstempel der Generierung</TableCell>
+									<TableCell>
+										<InlineCode>GeneratedAt</InlineCode>
+										<CopyButton text="GeneratedAt" />
+									</TableCell>
+								</TableRow>
+								<TableRow>
+									<TableCell>Array von Datenpunkten mit:</TableCell>
+									<TableCell>
+										<InlineCode>Emissions</InlineCode>
+										<CopyButton text="Emissions" />
+									</TableCell>
+								</TableRow>
+								<TableRow>
+									<TableCell>ISO 8601 Zeitstempel</TableCell>
+									<TableCell>
+										<InlineCode>Time</InlineCode>
+										<CopyButton text="Time" />
+									</TableCell>
+								</TableRow>
+								<TableRow>
+									<TableCell>CO₂-Intensität in g CO₂/kWh</TableCell>
+									<TableCell>
+										<InlineCode>Rating</InlineCode>
+										<CopyButton text="Rating" />
+									</TableCell>
+								</TableRow>
+								<TableRow>
+									<TableCell>
+										Dauer des Intervalls (meist "PT15M" für 15 Minuten)
+									</TableCell>
+									<TableCell>
+										<InlineCode>Duration</InlineCode>
+										<CopyButton text="Duration" />
+									</TableCell>
+								</TableRow>
+							</TableBody>
+						</Table>
+					</Section>
+
+					<Section>
+						<Accordion variant="outline">
+							<Heading level={3}>Code Beispiele</Heading>
 								<Content>
 									<Heading level={4}>Bash / Shell Script</Heading>
 									<Text>
@@ -364,35 +397,30 @@ async function getCarbonForecast() {
 						</Section>
 
 						<Section>
-							<AccentBox color="green">
-								<Section>
-									<Heading level={3}>Automatisierungsideen</Heading>
-									<Text>
-										<strong>Schwellenwert-basierte Steuerung:</strong>
-									</Text>
-									<Text>
-										Führe Tasks nur aus, wenn die CO₂-Intensität unter einem
-										bestimmten Schwellenwert liegt (z.B. &lt; 300 g CO₂/kWh).
-									</Text>
-									<Text>
-										<strong>Zeitfenster-Optimierung:</strong>
-									</Text>
-									<Text>
-										Plane Tasks für das nächste Zeitfenster mit niedriger
-										CO₂-Intensität, auch wenn es nicht sofort ausgeführt werden
-										muss.
-									</Text>
-									<Text>
-										<strong>Monitoring und Alerting:</strong>
-									</Text>
-									<Text>
-										Erstelle Alerts, wenn die CO₂-Intensität besonders
-										niedrig ist, um energieintensive Tasks manuell zu starten.
-									</Text>
-								</Section>
-							</AccentBox>
+							<Heading level={3}>Automatisierungsideen</Heading>
+							<LabeledValue>
+								<Label>Schwellenwert-basierte Steuerung</Label>
+								<Content>
+									Führe Tasks nur aus, wenn die CO₂-Intensität unter einem
+									bestimmten Schwellenwert liegt (z.B. &lt; 300 g CO₂/kWh).
+								</Content>
+							</LabeledValue>
+							<LabeledValue>
+								<Label>Zeitfenster-Optimierung</Label>
+								<Content>
+									Plane Tasks für das nächste Zeitfenster mit niedriger
+									CO₂-Intensität, auch wenn es nicht sofort ausgeführt werden
+									muss.
+								</Content>
+							</LabeledValue>
+							<LabeledValue>
+								<Label>Monitoring und Alerting</Label>
+								<Content>
+									Erstelle Alerts, wenn die CO₂-Intensität besonders
+									niedrig ist, um energieintensive Tasks manuell zu starten.
+								</Content>
+							</LabeledValue>
 						</Section>
-					</Section>
 				</Tab>
 				<Tab>
 					<TabTitle>Cronjobs</TabTitle>
