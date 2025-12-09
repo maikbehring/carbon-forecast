@@ -10,11 +10,11 @@ import {
 	YAxis,
 	Section,
 	ChartTooltip,
-	Flex,
-	Accordion,
 	AccentBox,
 	BigNumber,
 	Badge,
+	ColumnLayout,
+	ContextualHelp,
 } from "@mittwald/flow-remote-react-components";
 import type { CarbonForecast } from "~/server/functions/getCarbonForecast";
 
@@ -154,26 +154,43 @@ export function CarbonForecast({
 	return (
 		<Content>
 			<Section>
-				<Content>
-					<Heading level={1}>Carbon Forecast Deutschland</Heading>
-					{onRefresh && (
-						<Content>
-							<Button onPress={onRefresh} isDisabled={isRefreshing}>
-								{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
-							</Button>
-						</Content>
-					)}
-				</Content>
-			</Section>
-
-			<Section>
+				<Heading level={2}>Carbon Forecast Deutschland</Heading>
+				{onRefresh && (
+					<Button onPress={onRefresh} isDisabled={isRefreshing}>
+						{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
+					</Button>
+				)}
 				<Text>
-					Vorhersage erstellt am: <strong>{formatDateTime(GeneratedAt)}</strong>
+					Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten
+					des Fraunhofer ISE (Energy Charts) und der ENTSO-E
+					Transparenzplattform. Das Projekt „Carbon Aware Computing" bereitet diese
+					Daten auf und stellt sie als frei nutzbare Forecasts bereit.
+				</Text>
+				{futureEmissions.length < 96 && (
+					<Text>
+						<strong>Hinweis:</strong> Es sind nur {futureEmissions.length} von{" "}
+						{Emissions.length} Datenpunkten verfügbar. Die Vorhersage deckt die{" "}
+						{getTimeDescription()} ab. Prognosedaten werden gegen 23 Uhr für die
+						kommenden 24 Stunden generiert.
+					</Text>
+				)}
+				<Text>
+					Erstellt am {formatDateTime(GeneratedAt)}
 				</Text>
 			</Section>
 
 			<Section>
-				<Heading level={2}>CO₂-Intensität über Zeit</Heading>
+				<Heading level={2}>
+					CO₂-Intensität über Zeit
+				</Heading>
+				<ContextualHelp>
+					<Text>
+						<strong>CO₂-Intensität (g CO₂/kWh):</strong> Die geschätzte
+						Emissionsintensität des Stroms in Gramm CO₂ pro Kilowattstunde. Je
+						niedriger dieser Wert ist, desto klimafreundlicher ist der Strom zu
+						diesem Zeitpunkt.
+					</Text>
+				</ContextualHelp>
 				<Text>
 					Visualisierung der prognostizierten CO₂-Intensität des Stroms für die{" "}
 					{getTimeDescription()}:
@@ -191,91 +208,57 @@ export function CarbonForecast({
 			</Section>
 
 			<Section>
-				<Heading level={2}>CO₂-Metriken</Heading>
-				<Flex gap="m" justify="center">
-					<BigNumber>
-						<Text>{currentRating.toFixed(1)}</Text>
-						<Text>g CO₂/kWh</Text>
-						<Text>
-							Aktuell{" "}
-							<Badge color={currentStatus.color}>
-								{currentStatus.label}
-							</Badge>
-						</Text>
-					</BigNumber>
-					<BigNumber>
-						<Text>{minRatingValue.toFixed(1)}</Text>
-						<Text>g CO₂/kWh</Text>
-						<Text>Minimum</Text>
-					</BigNumber>
-					<BigNumber>
-						<Text>{avgRating.toFixed(1)}</Text>
-						<Text>g CO₂/kWh</Text>
-						<Text>Durchschnitt</Text>
-					</BigNumber>
-				</Flex>
+				<Heading level={2}>CO₂ Metriken</Heading>
+				<ColumnLayout>
+					<AccentBox>
+						<BigNumber>
+							<Text>{currentRating.toFixed(1)}</Text>
+							<Text>g CO₂/kWh</Text>
+							<Text>
+								Aktuell{" "}
+								<Badge color={currentStatus.color}>
+									{currentStatus.label}
+								</Badge>
+							</Text>
+						</BigNumber>
+					</AccentBox>
+					<AccentBox>
+						<BigNumber>
+							<Text>{minRatingValue.toFixed(1)}</Text>
+							<Text>g CO₂/kWh</Text>
+							<Text>Minimum</Text>
+						</BigNumber>
+					</AccentBox>
+					<AccentBox>
+						<BigNumber>
+							<Text>{avgRating.toFixed(1)}</Text>
+							<Text>g CO₂/kWh</Text>
+							<Text>Durchschnitt</Text>
+						</BigNumber>
+					</AccentBox>
+				</ColumnLayout>
 			</Section>
 
 			<Section>
-				<AccentBox color="green">
-					<Section>
-						<Heading level={3}>Optimaler Zeitpunkt</Heading>
-						<Text>
-							<strong>{formatDateTime(optimalEmission.Time)}</strong>
-							<br />
-							CO₂-Intensität: {optimalEmission.Rating.toFixed(1)} g CO₂/kWh
-							<br />
-							Dies ist der beste Zeitpunkt für energieintensive Workloads.
-						</Text>
-					</Section>
+				<AccentBox>
+					<Heading level={3}>Optimaler Zeitpunkt</Heading>
+					<Text>
+						Der beste Zeitpunkt für energieintensive Workloads mit dem geringsten
+						CO₂-Verbrauch war der {formatDateTime(optimalEmission.Time)} mit{" "}
+						{optimalEmission.Rating.toFixed(1)} g CO₂/kWh.
+					</Text>
 				</AccentBox>
 			</Section>
 
 			<Section>
-				<Text>
-					Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten
-					des Fraunhofer ISE (Energy Charts) und der ENTSO-E
-					Transparenzplattform. Das Projekt „Carbon Aware Computing" bereitet diese
-					Daten auf und stellt sie als frei nutzbare Forecasts bereit.
-				</Text>
-				{futureEmissions.length < 96 && (
+				<AccentBox>
+					<Heading level={3}>Workloads smart planen</Heading>
 					<Text>
-						<strong>Hinweis:</strong> Es sind nur {futureEmissions.length} von{" "}
-						{Emissions.length} Datenpunkten verfügbar. Die Vorhersage deckt{" "}
-						{getTimeDescription()} ab. Prognosedaten werden gegen 23 Uhr für die
-						kommenden 24 Stunden generiert.
+						Plane energieintensive Workloads für Zeitfenster mit niedriger
+						CO₂-Intensität. Dies hilft, den ökologischen Fußabdruck deiner
+						Anwendungen zu reduzieren.
 					</Text>
-				)}
-			</Section>
-
-			<Section>
-				<Accordion variant="outline">
-					<Heading level={3}>Erklärung der Werte</Heading>
-					<Content>
-						<Text>
-							<strong>CO₂-Intensität (g CO₂/kWh):</strong> Die geschätzte
-							Emissionsintensität des Stroms in Gramm CO₂ pro Kilowattstunde. Je
-							niedriger dieser Wert ist, desto klimafreundlicher ist der Strom zu
-							diesem Zeitpunkt.
-						</Text>
-					</Content>
-					<Content>
-						<Text>
-							<strong>Zeitachse:</strong> Die X-Achse zeigt die Uhrzeit in
-							15-Minuten-Intervallen für die kommenden Stunden an. Die Vorhersage
-							wird regelmäßig aktualisiert, um die aktuellsten Prognosen zu
-							liefern.
-						</Text>
-					</Content>
-					<Content>
-						<Text>
-							<strong>Empfehlung:</strong> Planen Sie energieintensive Workloads
-							für Zeitfenster mit niedriger CO₂-Intensität (grüne Bereiche im
-							Diagramm). Dies hilft, den ökologischen Fußabdruck Ihrer
-							Anwendungen zu reduzieren.
-						</Text>
-					</Content>
-				</Accordion>
+				</AccentBox>
 			</Section>
 		</Content>
 	);
