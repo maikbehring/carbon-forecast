@@ -12,9 +12,9 @@ import {
 	ChartTooltip,
 	AccentBox,
 	BigNumber,
-	Badge,
 	ColumnLayout,
 	ContextualHelp,
+	Flex,
 } from "@mittwald/flow-remote-react-components";
 import type { CarbonForecast } from "~/server/functions/getCarbonForecast";
 
@@ -141,27 +141,19 @@ export function CarbonForecast({
 		e.Rating < min.Rating ? e : min,
 	);
 
-	// Get status badge
-	function getStatusBadge(rating: number) {
-		if (rating < 200) return { color: "green" as const, label: "Sehr gut" };
-		if (rating < 300) return { color: "teal" as const, label: "Gut" };
-		if (rating < 400) return { color: "orange" as const, label: "Mittel" };
-		return { color: "red" as const, label: "Hoch" };
-	}
-
-	const currentStatus = getStatusBadge(currentRating);
 
 	return (
 		<Content>
 			<Section>
-				<Heading level={2}>
-					Carbon Forecast Deutschland
+				<Flex justify="start" align="center" gap="m">
+					<Heading level={2}>Carbon Forecast Deutschland</Heading>
+					<Content style={{ flexGrow: 1, minWidth: 0 }} />
 					{onRefresh && (
 						<Button size="s" onPress={onRefresh} isDisabled={isRefreshing}>
 							{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
 						</Button>
 					)}
-				</Heading>
+				</Flex>
 				<Text>
 					Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten
 					des Fraunhofer ISE (Energy Charts) und der ENTSO-E
@@ -188,12 +180,7 @@ export function CarbonForecast({
 						<BigNumber>
 							<Text>{currentRating.toFixed(1)}</Text>
 							<Text>g CO₂/kWh</Text>
-							<Text>
-								Aktuell{" "}
-								<Badge color={currentStatus.color}>
-									{currentStatus.label}
-								</Badge>
-							</Text>
+							<Text>Aktuell</Text>
 						</BigNumber>
 					</AccentBox>
 					<AccentBox>
