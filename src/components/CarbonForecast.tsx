@@ -154,12 +154,14 @@ export function CarbonForecast({
 	return (
 		<Content>
 			<Section>
-				<Heading level={2}>Carbon Forecast Deutschland</Heading>
-				{onRefresh && (
-					<Button onPress={onRefresh} isDisabled={isRefreshing}>
-						{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
-					</Button>
-				)}
+				<Heading level={2}>
+					Carbon Forecast Deutschland
+					{onRefresh && (
+						<Button size="s" onPress={onRefresh} isDisabled={isRefreshing}>
+							{isRefreshing ? "Wird aktualisiert..." : "Aktualisieren"}
+						</Button>
+					)}
+				</Heading>
 				<Text>
 					Die CO₂-Prognosedaten basieren auf öffentlich verfügbaren Energiedaten
 					des Fraunhofer ISE (Energy Charts) und der ENTSO-E
@@ -177,34 +179,6 @@ export function CarbonForecast({
 				<Text>
 					Erstellt am {formatDateTime(GeneratedAt)}
 				</Text>
-			</Section>
-
-			<Section>
-				<Heading level={2}>
-					CO₂-Intensität über Zeit
-				</Heading>
-				<ContextualHelp>
-					<Text>
-						<strong>CO₂-Intensität (g CO₂/kWh):</strong> Die geschätzte
-						Emissionsintensität des Stroms in Gramm CO₂ pro Kilowattstunde. Je
-						niedriger dieser Wert ist, desto klimafreundlicher ist der Strom zu
-						diesem Zeitpunkt.
-					</Text>
-				</ContextualHelp>
-				<Text>
-					Visualisierung der prognostizierten CO₂-Intensität des Stroms für die{" "}
-					{getTimeDescription()}:
-				</Text>
-			</Section>
-
-			<Section>
-				<CartesianChart data={chartData} height="300px">
-					<CartesianGrid />
-					<Area dataKey="CO2" color="green" fillOpacity={0.3} />
-					<XAxis dataKey="Zeit" />
-					<YAxis domain={yDomain} unit=" g CO₂/kWh" />
-					<ChartTooltip />
-				</CartesianChart>
 			</Section>
 
 			<Section>
@@ -248,6 +222,31 @@ export function CarbonForecast({
 						{optimalEmission.Rating.toFixed(1)} g CO₂/kWh.
 					</Text>
 				</AccentBox>
+			</Section>
+
+			<Section>
+				<Heading level={2}>
+					CO₂-Intensität über Zeit
+				</Heading>
+				<ContextualHelp>
+					<Text>
+						<strong>CO₂-Intensität (g CO₂/kWh):</strong> Die geschätzte
+						Emissionsintensität des Stroms in Gramm CO₂ pro Kilowattstunde. Je
+						niedriger dieser Wert ist, desto klimafreundlicher ist der Strom zu
+						diesem Zeitpunkt.
+					</Text>
+				</ContextualHelp>
+				<Text>
+					Visualisierung der prognostizierten CO₂-Intensität des Stroms für die{" "}
+					{getTimeDescription()}:
+				</Text>
+				<CartesianChart data={chartData} height="300px">
+					<CartesianGrid />
+					<Area dataKey="CO2" color="green" fillOpacity={0.3} />
+					<XAxis dataKey="Zeit" />
+					<YAxis domain={yDomain} unit=" g CO₂/kWh" />
+					<ChartTooltip />
+				</CartesianChart>
 			</Section>
 
 			<Section>
