@@ -7,6 +7,10 @@ import {
 	InlineCode,
 	Flex,
 	AccentBox,
+	LabeledValue,
+	Label,
+	CopyButton,
+	Content,
 } from "@mittwald/flow-remote-react-components";
 import { EditCronjobForm } from "./EditCronjobForm";
 import type { CarbonForecast } from "~/server/functions/getCarbonForecast";
@@ -152,7 +156,10 @@ export function CronjobListComponent({ cronjobs, forecast }: CronjobListProps) {
 	if (cronjobs.length === 0) {
 		return (
 			<Section>
-				<Heading level={2}>Cronjobs</Heading>
+				<Flex justify="start" align="center" gap="m">
+					<Heading level={2}>Cronjobs</Heading>
+					<Content style={{ flexGrow: 1, minWidth: 0 }} />
+				</Flex>
 				<Text>Keine Cronjobs vorhanden.</Text>
 			</Section>
 		);
@@ -160,28 +167,25 @@ export function CronjobListComponent({ cronjobs, forecast }: CronjobListProps) {
 
 	return (
 		<Section>
-			<Heading level={2}>Cronjobs</Heading>
+			<Flex justify="start" align="center" gap="m">
+				<Heading level={2}>Cronjobs</Heading>
+				<Content style={{ flexGrow: 1, minWidth: 0 }} />
+			</Flex>
 			{optimalTime && (
-				<AccentBox color="green">
-					<Section>
-						<Flex direction="column" gap="xs">
-							<Heading level={3}>
-								💡 Optimaler Zeitpunkt für energieintensive Cronjobs
-							</Heading>
-							<Text>
-								Der beste Zeitpunkt mit dem geringsten CO₂-Verbrauch ist{" "}
-								<strong>{optimalTime.time} Uhr</strong> mit{" "}
-								<strong>{Math.round(optimalTime.rating)} g CO₂/kWh</strong>.
-							</Text>
-							<Text>
-								<strong>Cron-Expression:</strong>{" "}
-								<InlineCode>{optimalTime.cronExpression}</InlineCode>
-							</Text>
-							<Text>
-								Kopiere diese Expression in das Interval-Feld deines Cronjobs, um ihn zu diesem optimalen Zeitpunkt auszuführen.
-							</Text>
-						</Flex>
-					</Section>
+				<AccentBox>
+					<Heading level={3}>Optimaler Zeitpunkt</Heading>
+					<Text>
+						Der beste Zeitpunkt mit dem geringsten CO₂-Verbrauch war der{" "}
+						{optimalTime.time} Uhr mit {Math.round(optimalTime.rating)} g CO₂/kWh.{" "}
+						Kopiere folgende Expression in das Interval-Feld deines Cronjobs, um ihn zu diesem optimalen Zeitpunkt auszuführen.
+					</Text>
+					<LabeledValue>
+						<Label>Cron-Expression</Label>
+						<Content>
+							<InlineCode>{optimalTime.cronExpression}</InlineCode>
+							<CopyButton text={optimalTime.cronExpression} />
+						</Content>
+					</LabeledValue>
 				</AccentBox>
 			)}
 			<Text>

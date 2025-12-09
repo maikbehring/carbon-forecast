@@ -28,10 +28,26 @@ import { CronjobListComponent } from "~/components/CronjobList";
 import { CreateCronjobForm } from "~/components/CreateCronjobForm";
 import { Loader } from "~/components/Loader";
 import { ErrorMessage } from "~/components/ErrorMessage";
+import type { CarbonForecast as CarbonForecastType } from "~/server/functions/getCarbonForecast";
 
 export const Route = createFileRoute("/")({
 	component: RouteComponent,
 });
+
+function CronjobTabContent({
+	cronjobs,
+	forecast,
+}: {
+	cronjobs: any[];
+	forecast?: CarbonForecastType;
+}) {
+	return (
+		<Content>
+			<CronjobListComponent cronjobs={cronjobs} forecast={forecast} />
+			<CreateCronjobForm />
+		</Content>
+	);
+}
 
 function RouteComponent() {
 	const queryClient = useQueryClient();
@@ -436,10 +452,7 @@ async function getCarbonForecast() {
 							}
 						/>
 					) : (
-						<Content>
-							<CronjobListComponent cronjobs={cronjobs || []} forecast={forecast} />
-							<CreateCronjobForm />
-						</Content>
+						<CronjobTabContent cronjobs={cronjobs || []} forecast={forecast} />
 					)}
 				</Tab>
 			</Tabs>
