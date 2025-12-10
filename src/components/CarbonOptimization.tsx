@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
 	Content,
 	Heading,
@@ -14,6 +15,7 @@ import {
 	TableCell,
 	Badge,
 	InlineCode,
+	Alert,
 } from "@mittwald/flow-remote-react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCronjobs } from "~/server/functions/getAllCronjobs";
@@ -42,6 +44,8 @@ function isDailyCronjob(interval?: string): boolean {
 
 export function CarbonOptimization() {
 	const queryClient = useQueryClient();
+	const [error, setError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<string | null>(null);
 
 	const {
 		data: cronjobs = [],
@@ -59,6 +63,8 @@ export function CarbonOptimization() {
 	);
 
 	const handleToggle = async (cronjob: Cronjob, enabled: boolean) => {
+		setError(null);
+		setSuccess(null);
 		try {
 			await toggleAutoOptimize({
 				data: {
@@ -69,9 +75,22 @@ export function CarbonOptimization() {
 
 			// Invalidate queries um Daten zu aktualisieren
 			queryClient.invalidateQueries({ queryKey: ["allCronjobs"] });
+			
+			setSuccess(
+				enabled
+					? "CO₂-Optimierung wurde aktiviert. Der Cronjob wird täglich automatisch optimiert."
+					: "CO₂-Optimierung wurde deaktiviert.",
+			);
+			
+			// Erfolgs-Message nach 3 Sekunden ausblenden
+			setTimeout(() => setSuccess(null), 3000);
 		} catch (error) {
 			console.error("Error toggling auto-optimize:", error);
-			// TODO: Zeige Fehler-Message an
+			setError(
+				error instanceof Error
+					? error.message
+					: "Fehler beim Aktivieren der CO₂-Optimierung",
+			);
 		}
 	};
 
@@ -101,6 +120,16 @@ export function CarbonOptimization() {
 					werden dann automatisch auf die Zeit mit dem geringsten CO₂-Verbrauch
 					verschoben.
 				</Text>
+				{error && (
+					<Alert status="danger">
+						<Text>{error}</Text>
+					</Alert>
+				)}
+				{success && (
+					<Alert status="success">
+						<Text>{success}</Text>
+					</Alert>
+				)}
 			</Section>
 
 			{dailyCronjobs.length === 0 ? (
