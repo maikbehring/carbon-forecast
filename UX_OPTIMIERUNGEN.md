@@ -244,3 +244,5 @@ const optimalEmission = futureEmissions.reduce((min, e) =>
 
 
 
+
+
