@@ -31,10 +31,8 @@ export const getApps = createServerFn({ method: "POST" })
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
 			const result = await client.app.listApps({
-				queryParameters: {
-					projectId: validatedBody.projectId,
-				},
-			});
+				projectId: validatedBody.projectId,
+			} as any);
 			assertStatus(result, 200);
 
 			return result.data.map((app) => ({
@@ -46,6 +44,11 @@ export const getApps = createServerFn({ method: "POST" })
 				throw new Error(`Validation error: ${error.errors.map((e) => e.message).join(", ")}`);
 			}
 			if (error instanceof Error) {
+				// Log error details for debugging
+				console.error("Error fetching apps:", error.message);
+				if (data && typeof data === "object" && "projectId" in data) {
+					console.error("ProjectId:", (data as { projectId: string }).projectId);
+				}
 				throw error;
 			}
 			throw new Error("Unknown error while fetching apps");
