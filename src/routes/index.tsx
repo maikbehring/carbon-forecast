@@ -3,52 +3,18 @@ import {
 	Tabs,
 	Tab,
 	TabTitle,
-	Section,
-	Heading,
-	Text,
-	Accordion,
-	InlineCode,
-	CodeBlock,
-	LabeledValue,
-	Label,
-	CopyButton,
-	Table,
-	TableHeader,
-	TableColumn,
-	TableBody,
-	TableRow,
-	TableCell,
 } from "@mittwald/flow-remote-react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { getCarbonForecast } from "~/server/functions/getCarbonForecast";
-import { getAllCronjobs } from "~/server/functions/getAllCronjobs";
 import { CarbonForecast } from "~/components/CarbonForecast";
-import { CronjobListComponent } from "~/components/CronjobList";
-import { CreateCronjobForm } from "~/components/CreateCronjobForm";
 import { CarbonOptimization } from "~/components/CarbonOptimization";
 import { Loader } from "~/components/Loader";
 import { ErrorMessage } from "~/components/ErrorMessage";
-import type { CarbonForecast as CarbonForecastType } from "~/server/functions/getCarbonForecast";
 
 export const Route = createFileRoute("/")({
 	component: RouteComponent,
 });
-
-function CronjobTabContent({
-	cronjobs,
-	forecast,
-}: {
-	cronjobs: any[];
-	forecast?: CarbonForecastType;
-}) {
-	return (
-		<Content>
-			<CronjobListComponent cronjobs={cronjobs} forecast={forecast} />
-			<CreateCronjobForm />
-		</Content>
-	);
-}
 
 function RouteComponent() {
 	const queryClient = useQueryClient();
@@ -62,16 +28,6 @@ function RouteComponent() {
 		queryKey: ["carbonForecast"],
 		queryFn: () => getCarbonForecast(),
 		staleTime: 15 * 60 * 1000, // 15 minutes - forecast updates every 15 minutes
-	});
-
-	const {
-		data: cronjobs,
-		isLoading: isLoadingCronjobs,
-		error: cronjobsError,
-	} = useQuery({
-		queryKey: ["allCronjobs"],
-		queryFn: () => getAllCronjobs(),
-		staleTime: 30 * 1000, // 30 seconds
 	});
 
 	if (isLoading) {
@@ -116,6 +72,7 @@ function RouteComponent() {
 						isRefreshing={isFetching}
 					/>
 				</Tab>
+				{/* Tab ausblenden
 				<Tab>
 					<TabTitle>Tipps und Tricks</TabTitle>
 					<Section>
@@ -439,6 +396,8 @@ async function getCarbonForecast() {
 							</LabeledValue>
 						</Section>
 				</Tab>
+				*/}
+				{/* Tab ausblenden
 				<Tab>
 					<TabTitle>Cronjobs</TabTitle>
 					{isLoadingCronjobs ? (
@@ -456,8 +415,9 @@ async function getCarbonForecast() {
 						<CronjobTabContent cronjobs={cronjobs || []} forecast={forecast} />
 					)}
 				</Tab>
+				*/}
 				<Tab>
-					<TabTitle>CO₂-Optimierung</TabTitle>
+					<TabTitle>Cronjobs automatisch optimieren</TabTitle>
 					<CarbonOptimization />
 				</Tab>
 			</Tabs>

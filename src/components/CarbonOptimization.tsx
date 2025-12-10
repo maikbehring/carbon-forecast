@@ -116,9 +116,13 @@ export function CarbonOptimization() {
 			<Section>
 				<Heading level={2}>CO₂-Optimierung</Heading>
 				<Text>
-					Aktiviere die automatische CO₂-Optimierung für tägliche Cronjobs. Diese
-					werden dann automatisch auf die Zeit mit dem geringsten CO₂-Verbrauch
-					verschoben.
+					Aktiviere die automatische CO₂-Optimierung für tägliche Cronjobs. Der Cronjob
+					wird automatisch so umgestellt, dass er einmal täglich zur optimalen Zeit
+					ausgeführt wird – auch wenn er vorher häufiger am Tag lief.
+				</Text>
+				<Text>
+					<strong>Wichtig:</strong> Die ursprüngliche Ausführungszeit wird überschrieben
+					und muss nach der Deaktivierung manuell wieder eingestellt werden.
 				</Text>
 				{error && (
 					<Alert status="danger">
@@ -190,8 +194,9 @@ export function CarbonOptimization() {
 														: "Automatische Optimierung aktivieren"}
 												</Label>
 												<FieldDescription>
-													Dieser Cronjob wird täglich automatisch auf die Zeit
-													mit dem geringsten CO₂-Verbrauch verschoben.
+													{isOptimized
+														? "Der Cronjob wird täglich einmal zur optimalen Zeit ausgeführt. Die ursprüngliche Ausführungszeit wurde überschrieben und muss nach der Deaktivierung manuell wieder eingestellt werden."
+														: "Der Cronjob wird automatisch so umgestellt, dass er einmal täglich zur optimalen Zeit ausgeführt wird – auch wenn er vorher häufiger am Tag lief. Die ursprüngliche Ausführungszeit wird überschrieben und muss nach der Deaktivierung manuell wieder eingestellt werden."}
 												</FieldDescription>
 											</Switch>
 										</TableCell>

@@ -9,6 +9,9 @@ const envSchema = {
 	EXTENSION_ID: str(),
 	EXTENSION_SECRET: str(),
 
+	// API Key für scheduled Optimierung (optional, für zusätzliche Sicherheit)
+	OPTIMIZATION_API_KEY: str({ default: "" }),
+
 	NODE_ENV: str({
 		choices: ["development", "test", "production"],
 		default: "development",

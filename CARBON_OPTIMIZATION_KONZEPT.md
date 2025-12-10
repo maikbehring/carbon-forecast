@@ -473,8 +473,12 @@ export const scheduledOptimize = createServerFn({ method: "POST" })
 **Cronjob-Konfiguration:**
 - **Domain**: `mstudio.carbon-aware-computing.jetzt`
 - **Interval**: `0 2 * * *` (täglich um 2 Uhr UTC)
-- **Destination**: `https://mstudio.carbon-aware-computing.jetzt/_serverFn/src_server_functions_optimizeCronjobs_ts--optimizeCronjobs_createServerFn_handler?createServerFn`
+- **Destination**: `https://mstudio.carbon-aware-computing.jetzt/_serverFn/src_server_functions_scheduledOptimize_ts--scheduledOptimize_createServerFn_handler?createServerFn`
 - **Method**: POST
+- **Body** (optional):
+  - Wenn `OPTIMIZATION_API_KEY` gesetzt ist: `{ "apiKey": "dein-api-key" }`
+  - Für Testzwecke (wenn `OPTIMIZATION_API_KEY` leer ist): `{}` oder leerer Body
+- **Hinweis**: Diese Funktion kann von extern getriggert werden und benötigt keinen Session-Token. Sie iteriert über alle aktiven Extension Instances und optimiert deren Cronjobs automatisch. Für Testzwecke kann die Funktion ohne Authentifizierung aufgerufen werden.
 
 #### Option B: Interner Scheduler
 
