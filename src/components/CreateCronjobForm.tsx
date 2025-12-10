@@ -247,7 +247,7 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 										value={parameters}
 										onChange={setParameters}
 									>
-										<Label>Parameter<span className="flow--label--optional">(optional)</span></Label>
+										<Label>Parameter (optional)</Label>
 									</TextField>
 								</ColumnLayout>
 
@@ -321,14 +321,11 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 							<LabeledValue>
 								<Label>Nächste Ausführungen</Label>
 								<Content>
-									<Text>
-										{nextExecutions.map((exec, idx) => (
-											<span key={idx}>
-												{exec}
-												{idx < nextExecutions.length - 1 && <br />}
-											</span>
-										))}
-									</Text>
+									{nextExecutions.map((exec, idx) => (
+										<Text key={idx}>
+											{exec}
+										</Text>
+									))}
 								</Content>
 							</LabeledValue>
 						)}
