@@ -15,10 +15,13 @@ import {
 	Badge,
 	InlineCode,
 	Alert,
+	Button,
+	Flex,
 } from "@mittwald/flow-remote-react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCronjobs } from "~/server/functions/getAllCronjobs";
 import { toggleAutoOptimize, isCo2Optimized } from "~/server/functions/toggleAutoOptimize";
+import { optimizeCronjobs } from "~/server/functions/optimizeCronjobs";
 import { Loader } from "./Loader";
 import { ErrorMessage } from "./ErrorMessage";
 
@@ -45,6 +48,7 @@ export function CarbonOptimization() {
 	const queryClient = useQueryClient();
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
+	const [isOptimizing, setIsOptimizing] = useState(false);
 
 	const {
 		data: cronjobs = [],
@@ -93,6 +97,34 @@ export function CarbonOptimization() {
 		}
 	};
 
+	const handleManualOptimize = async () => {
+		setError(null);
+		setSuccess(null);
+		setIsOptimizing(true);
+		try {
+			await optimizeCronjobs({} as any);
+			
+			// Invalidate queries um Daten zu aktualisieren
+			queryClient.invalidateQueries({ queryKey: ["allCronjobs"] });
+			
+			setSuccess(
+				"Optimierung erfolgreich durchgeführt. Alle markierten Cronjobs wurden auf die optimale Zeit gesetzt.",
+			);
+			
+			// Erfolgs-Message nach 5 Sekunden ausblenden
+			setTimeout(() => setSuccess(null), 5000);
+		} catch (error) {
+			console.error("Error optimizing cronjobs:", error);
+			setError(
+				error instanceof Error
+					? error.message
+					: "Fehler bei der manuellen Optimierung",
+			);
+		} finally {
+			setIsOptimizing(false);
+		}
+	};
+
 	if (isLoadingCronjobs) {
 		return <Loader />;
 	}
@@ -135,6 +167,27 @@ export function CarbonOptimization() {
 					soll. Wenn du den Marker manuell entfernst, wird der Cronjob nicht mehr
 					automatisch optimiert und der Switch zeigt "Inaktiv".
 				</Text>
+				<Text>
+					Die automatische Optimierung wird täglich um <strong>2 Uhr UTC</strong> durchgeführt.
+					Zu diesem Zeitpunkt wird der aktuelle Carbon Forecast analysiert und alle markierten
+					Cronjobs werden auf die optimale CO₂-Zeit für den kommenden Tag gesetzt. Diese optimale
+					Zeit wird jeden Tag neu berechnet und kann von Tag zu Tag variieren – mal morgens,
+					mal mittags, mal abends oder nachts – je nachdem, wann der geringste CO₂-Verbrauch
+					vorhergesagt wird. So wird sichergestellt, dass deine Cronjobs immer zur bestmöglichen
+					Zeit ausgeführt werden und der CO₂-Verbrauch kontinuierlich optimiert wird.
+				</Text>
+				<Flex gap="m" align="start">
+					<Button
+						onPress={handleManualOptimize}
+						isDisabled={isOptimizing}
+					>
+						{isOptimizing ? "Optimierung läuft..." : "Jetzt optimieren"}
+					</Button>
+					<Text>
+						Du kannst die Optimierung auch jederzeit manuell auslösen, um die Cronjobs
+						sofort auf die aktuelle optimale Zeit zu setzen.
+					</Text>
+				</Flex>
 				{error && (
 					<Alert status="danger">
 						<Text>{error}</Text>
