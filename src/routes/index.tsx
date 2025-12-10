@@ -26,6 +26,7 @@ import { getAllCronjobs } from "~/server/functions/getAllCronjobs";
 import { CarbonForecast } from "~/components/CarbonForecast";
 import { CronjobListComponent } from "~/components/CronjobList";
 import { CreateCronjobForm } from "~/components/CreateCronjobForm";
+import { CarbonOptimization } from "~/components/CarbonOptimization";
 import { Loader } from "~/components/Loader";
 import { ErrorMessage } from "~/components/ErrorMessage";
 import type { CarbonForecast as CarbonForecastType } from "~/server/functions/getCarbonForecast";
@@ -454,6 +455,10 @@ async function getCarbonForecast() {
 					) : (
 						<CronjobTabContent cronjobs={cronjobs || []} forecast={forecast} />
 					)}
+				</Tab>
+				<Tab>
+					<TabTitle>CO₂-Optimierung</TabTitle>
+					<CarbonOptimization />
 				</Tab>
 			</Tabs>
 		</Content>
