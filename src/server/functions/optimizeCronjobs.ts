@@ -4,7 +4,6 @@ import { MittwaldAPIV2Client, assertStatus } from "@mittwald/api-client";
 import { getAccessToken } from "@mittwald/ext-bridge/node";
 import { verifyAccessToInstance } from "~/middlewares/verify-access-to-instance";
 import { env } from "~/env";
-import { getAllCronjobs } from "./getAllCronjobs";
 import { optimizeDailyCronjob } from "./optimizeDailyCronjob";
 import { isCo2Optimized } from "./toggleAutoOptimize";
 import type { CarbonForecast } from "./getCarbonForecast";
@@ -68,8 +67,51 @@ export const optimizeCronjobs = createServerFn({ method: "POST" })
 			const forecastData = await forecastResponse.json();
 			const forecast = CarbonForecastSchema.parse(forecastData) as CarbonForecast;
 
-			// 2. Hole alle Cronjobs
-			const cronjobs = await getAllCronjobs();
+			// 2. Hole alle Cronjobs direkt (ohne Server Function)
+			// Hole Access Token für API-Calls
+			const { publicToken: accessToken } = await getAccessToken(
+				ctx.sessionToken,
+				env.EXTENSION_SECRET,
+			);
+			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
+
+			// Hole alle Projekte
+			const projectsResult = await client.project.listProjects();
+			assertStatus(projectsResult, 200);
+
+			// Sammle alle Cronjobs aus allen Projekten
+			const cronjobs: Array<{
+				id: string;
+				description?: string;
+				interval?: string;
+				projectId?: string;
+				projectName?: string;
+			}> = [];
+
+			for (const project of projectsResult.data) {
+				try {
+					const cronjobsResult = await client.cronjob.listCronjobs({
+						projectId: project.id,
+					});
+					assertStatus(cronjobsResult, 200);
+
+					for (const cronjob of cronjobsResult.data) {
+						cronjobs.push({
+							id: cronjob.id,
+							description: cronjob.description,
+							interval: cronjob.interval,
+							projectId: project.id,
+							projectName: project.description || project.id,
+						});
+					}
+				} catch (error) {
+					console.error(
+						`Error fetching cronjobs for project ${project.id}:`,
+						error,
+					);
+					// Continue with next project
+				}
+			}
 
 			const results: Array<{
 				cronjobId: string;
@@ -79,13 +121,6 @@ export const optimizeCronjobs = createServerFn({ method: "POST" })
 				co2Rating?: number;
 				error?: string;
 			}> = [];
-
-			// 3. Hole Access Token für API-Calls
-			const { publicToken: accessToken } = await getAccessToken(
-				ctx.sessionToken,
-				env.EXTENSION_SECRET,
-			);
-			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
 
 			// 4. Für jeden Cronjob prüfen
 			for (const cronjob of cronjobs) {

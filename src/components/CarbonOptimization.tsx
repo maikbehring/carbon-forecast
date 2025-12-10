@@ -147,8 +147,8 @@ export function CarbonOptimization() {
 			<Section>
 				<Heading level={2}>CO₂-Optimierung</Heading>
 				<Text>
-					Aktiviere die automatische CO₂-Optimierung für tägliche Cronjobs. Alle Cronjobs
-					werden dann nur noch einmal täglich zur optimalen Zeit ausgeführt – auch wenn
+					Aktiviere die automatische CO₂-Optimierung deiner Cronjobs. Alle Cronjobs
+					werden dann nur noch einmal täglich zur optimalen Zeit ausgeführt, auch wenn
 					sie vorher häufiger am Tag liefen.
 				</Text>
 				<Text>
@@ -157,14 +157,15 @@ export function CarbonOptimization() {
 				</Text>
 				<Text>
 					Der Cronjob wird automatisch mit dem Marker <InlineCode>[CO2-OPT]</InlineCode>{" "}
-					versehen. Du kannst den Marker auch manuell entfernen oder hinzufügen – das System
-					erkennt automatisch, ob ein Cronjob optimiert werden soll.
+					versehen. Du kannst den Marker auch manuell entfernen oder hinzufügen. Das System
+					erkennt automatisch, ob ein Cronjob optimiert werden soll. Wird der Marker entfernt,
+					werden die Cronjobs nicht mehr automatisch optimiert.
 				</Text>
 				<Text>
 					Die Optimierung läuft täglich um <strong>2 Uhr UTC</strong>. Der aktuelle Carbon
 					Forecast wird analysiert und alle markierten Cronjobs werden auf die optimale CO₂-Zeit
-					gesetzt. Diese optimale Zeit wird jeden Tag neu berechnet und kann variieren –
-					morgens, mittags, abends oder nachts – je nachdem, wann der geringste CO₂-Verbrauch
+					gesetzt. Diese optimale Zeit wird jeden Tag neu berechnet und kann variieren:
+					morgens, mittags, abends oder nachts, je nachdem, wann der geringste CO₂-Verbrauch
 					vorhergesagt wird.
 				</Text>
 				<Flex gap="m" align="start">
