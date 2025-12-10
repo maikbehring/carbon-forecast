@@ -30,12 +30,15 @@ export const getApps = createServerFn({ method: "POST" })
 			);
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
-			const result = await client.app.listApps({
+			// API erwartet projectId - versuche verschiedene Signaturen
+			// Der Log zeigt dass queryParameters nicht übergeben wird
+			// Versuche projectId direkt als Parameter (wie bei listCronjobs)
+			const result = await (client.app as any).listApps({
 				projectId: validatedBody.projectId,
-			} as any);
+			});
 			assertStatus(result, 200);
 
-			return result.data.map((app) => ({
+			return result.data.map((app: { id: string; name?: string }) => ({
 				id: app.id,
 				name: app.name || app.id,
 			}));
