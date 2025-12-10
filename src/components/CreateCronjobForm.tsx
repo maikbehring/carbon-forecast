@@ -250,24 +250,34 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 							<Select 
 								selectedKey={projectId} 
 								onSelectionChange={(key) => {
-									setProjectId(key as string);
-									setAppId(""); // App zurücksetzen wenn Projekt geändert wird
+									// key sollte die project.id sein (aus Option key={project.id})
+									const selectedProject = projects.find(p => p.id === key);
+									if (selectedProject) {
+										setProjectId(selectedProject.id);
+										setAppId(""); // App zurücksetzen wenn Projekt geändert wird
+									}
 								}}
 							>
 								<Label>Projekt</Label>
 								{projects.map((project) => (
-									<Option key={project.id}>{project.name}</Option>
+									<Option key={project.id} value={project.id}>{project.name}</Option>
 								))}
 							</Select>
 
 							<Select 
 								selectedKey={appId} 
-								onSelectionChange={(key) => setAppId(key as string)}
+								onSelectionChange={(key) => {
+									// key sollte die app.id sein (aus Option key={app.id})
+									const selectedApp = apps.find(a => a.id === key);
+									if (selectedApp) {
+										setAppId(selectedApp.id);
+									}
+								}}
 								isDisabled={!projectId}
 							>
 								<Label>Verknüpfte App</Label>
 								{apps.map((app) => (
-									<Option key={app.id}>{app.name}</Option>
+									<Option key={app.id} value={app.id}>{app.name}</Option>
 								))}
 							</Select>
 						</ColumnLayout>

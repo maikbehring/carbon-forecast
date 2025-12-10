@@ -31,8 +31,10 @@ export const getApps = createServerFn({ method: "POST" })
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
 			const result = await client.app.listApps({
-				projectId: validatedBody.projectId,
-			} as any);
+				queryParameters: {
+					projectId: validatedBody.projectId,
+				},
+			});
 			assertStatus(result, 200);
 
 			return result.data.map((app) => ({
