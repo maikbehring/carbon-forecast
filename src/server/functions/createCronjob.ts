@@ -6,10 +6,21 @@ import { verifyAccessToInstance } from "~/middlewares/verify-access-to-instance"
 import { env } from "~/env";
 
 const CreateCronjobSchema = z.object({
+	projectId: z.string().min(1),
 	appId: z.string().min(1),
 	description: z.string().min(1),
 	interval: z.string().min(1),
-	destination: z.string().min(1),
+	destination: z.union([
+		z.string(),
+		z.object({
+			interpreter: z.string(),
+			path: z.string(),
+			parameters: z.string().optional(),
+		}),
+		z.object({
+			url: z.string(),
+		}),
+	]),
 	timeout: z.number().optional(),
 });
 
@@ -20,10 +31,7 @@ export const createCronjob = createServerFn({ method: "POST" })
 			if (!context) {
 				throw new Error("Context is required");
 			}
-			const ctx = context as { projectId?: string; sessionToken: string };
-			if (!ctx.projectId) {
-				throw new Error("Project ID is required");
-			}
+			const ctx = context as { sessionToken: string };
 
 			// Validate data manually (inputValidator not available in v1.131.48)
 			if (!data || typeof data !== "object") {
@@ -37,15 +45,24 @@ export const createCronjob = createServerFn({ method: "POST" })
 			);
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
+			
+			// Handle different destination types
+			let destination;
+			if (typeof validatedBody.destination === "string") {
+				destination = { url: validatedBody.destination };
+			} else if ("url" in validatedBody.destination) {
+				destination = validatedBody.destination;
+			} else {
+				destination = validatedBody.destination;
+			}
+
 			const result = await client.cronjob.createCronjob({
-				projectId: ctx.projectId,
+				projectId: validatedBody.projectId,
 				data: {
 					appId: validatedBody.appId,
 					description: validatedBody.description,
 					interval: validatedBody.interval,
-					destination: {
-						url: validatedBody.destination,
-					},
+					destination,
 					timeout: validatedBody.timeout ?? 300,
 					active: true,
 				},

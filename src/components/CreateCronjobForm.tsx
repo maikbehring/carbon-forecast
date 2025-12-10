@@ -25,7 +25,9 @@ import {
 	FieldDescription,
 } from "@mittwald/flow-remote-react-components";
 import { createCronjob } from "~/server/functions/createCronjob";
-import { useQueryClient } from "@tanstack/react-query";
+import { getProjects } from "~/server/functions/getProjects";
+import { getApps } from "~/server/functions/getApps";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 
 interface CreateCronjobFormProps {
 	trigger?: React.ReactNode;
@@ -110,15 +112,32 @@ function getCronDescription(cronExpression: string): string {
 
 	const [minute, hour] = parts;
 	
-	const hourDesc = hour === "*" ? "jede Stunde" :
-		hour.startsWith("*/") ? `alle ${hour.slice(2)} Stunden` :
-		`bei Stunde ${hour}`;
+	let minuteDesc: string;
+	if (minute === "*") {
+		minuteDesc = "jede Minute";
+	} else if (minute.startsWith("*/")) {
+		const interval = minute.slice(2);
+		minuteDesc = `alle ${interval} Minuten`;
+	} else {
+		minuteDesc = `bei Minute ${minute}`;
+	}
 	
-	return `Bei Minute ${minute === "*" ? "0" : minute}, ${hourDesc}, jeden Tag (UTC)`;
+	let hourDesc: string;
+	if (hour === "*") {
+		hourDesc = "jede Stunde";
+	} else if (hour.startsWith("*/")) {
+		const interval = hour.slice(2);
+		hourDesc = `alle ${interval} Stunden`;
+	} else {
+		hourDesc = `bei Stunde ${hour}`;
+	}
+	
+	return `${minuteDesc}, ${hourDesc}, jeden Tag (UTC)`;
 }
 
 export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 	const queryClient = useQueryClient();
+	const [projectId, setProjectId] = useState("");
 	const [appId, setAppId] = useState("");
 	const [name, setName] = useState("");
 	const [executionType, setExecutionType] = useState<ExecutionType>("command");
@@ -132,6 +151,19 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState(false);
+
+	// Projekte laden
+	const { data: projects = [] } = useQuery({
+		queryKey: ["projects"],
+		queryFn: () => getProjects(),
+	});
+
+	// Apps laden, wenn ein Projekt ausgewählt ist
+	const { data: apps = [] } = useQuery({
+		queryKey: ["apps", projectId],
+		queryFn: () => getApps({ data: { projectId } } as any),
+		enabled: !!projectId,
+	});
 
 	const cronExpression = intervalType === "custom" ? customCron : intervalTypeToCron(intervalType);
 	const cronDescription = useMemo(() => getCronDescription(cronExpression), [cronExpression]);
@@ -150,12 +182,20 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 		setIsSubmitting(true);
 
 		try {
+			if (!projectId) {
+				throw new Error("Bitte wähle ein Projekt aus");
+			}
+			if (!appId) {
+				throw new Error("Bitte wähle eine App aus");
+			}
+
 			const destination = executionType === "command" 
 				? { interpreter, path: filePath, parameters: parameters || undefined }
 				: { url };
 
 			await createCronjob({
 				data: {
+					projectId,
 					appId,
 					description: name,
 					interval: cronExpression,
@@ -165,6 +205,7 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 			} as any);
 
 			setSuccess(true);
+			setProjectId("");
 			setAppId("");
 			setName("");
 			setExecutionType("command");
@@ -206,9 +247,28 @@ export function CreateCronjobForm({ trigger }: CreateCronjobFormProps = {}) {
 								<Label>Name</Label>
 							</TextField>
 
-							<Select selectedKey={appId} onSelectionChange={(key) => setAppId(key as string)}>
+							<Select 
+								selectedKey={projectId} 
+								onSelectionChange={(key) => {
+									setProjectId(key as string);
+									setAppId(""); // App zurücksetzen wenn Projekt geändert wird
+								}}
+							>
+								<Label>Projekt</Label>
+								{projects.map((project) => (
+									<Option key={project.id}>{project.name}</Option>
+								))}
+							</Select>
+
+							<Select 
+								selectedKey={appId} 
+								onSelectionChange={(key) => setAppId(key as string)}
+								isDisabled={!projectId}
+							>
 								<Label>Verknüpfte App</Label>
-								<Option key="app-1">Meine App</Option>
+								{apps.map((app) => (
+									<Option key={app.id}>{app.name}</Option>
+								))}
 							</Select>
 						</ColumnLayout>
 
