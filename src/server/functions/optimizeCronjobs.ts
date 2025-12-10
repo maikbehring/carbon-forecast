@@ -144,6 +144,17 @@ export const optimizeCronjobs = createServerFn({ method: "POST" })
 						continue;
 					}
 
+					// Prüfe ob aktuelle Ausführungszeit zwischen 0-2 Uhr UTC liegt
+					// Wenn ja, überspringe Optimierung für diesen Tag, da der Cronjob sonst
+					// zweimal am Tag laufen würde (einmal zur ursprünglichen Zeit, einmal zur neuen Zeit)
+					const currentHour = parseInt(parts[1] || "0", 10);
+					if (currentHour >= 0 && currentHour < 2) {
+						console.log(
+							`Skipping optimization for cronjob ${cronjob.id}: current execution time is between 0-2 UTC (${currentHour}:${parts[0]}), would cause double execution`,
+						);
+						continue;
+					}
+
 					// Optimiere
 					const optimizationResult = optimizeDailyCronjob(
 						cronjob.interval!,
