@@ -30,17 +30,18 @@ export const getApps = createServerFn({ method: "POST" })
 			);
 
 			const client = await MittwaldAPIV2Client.newWithToken(accessToken);
-			// API erwartet projectId - versuche verschiedene Signaturen
-			// Der Log zeigt dass queryParameters nicht übergeben wird
-			// Versuche projectId direkt als Parameter (wie bei listCronjobs)
-			const result = await (client.app as any).listApps({
+			// Korrekter Endpunkt: GET /v2/projects/{projectId}/app-installations
+			// Operation ID: app-list-appinstallations
+			// projectId ist ein path Parameter
+			const result = await client.app.listAppinstallations({
 				projectId: validatedBody.projectId,
 			});
 			assertStatus(result, 200);
 
-			return result.data.map((app: { id: string; name?: string }) => ({
-				id: app.id,
-				name: app.name || app.id,
+			// AppInstallations haben ein appId Feld, aber der Name kommt aus der AppInstallation selbst
+			return result.data.map((appInstallation: { id: string; appId: string; shortId?: string; description?: string }) => ({
+				id: appInstallation.id,
+				name: appInstallation.description || appInstallation.shortId || appInstallation.appId || appInstallation.id,
 			}));
 		} catch (error) {
 			if (error instanceof z.ZodError) {
