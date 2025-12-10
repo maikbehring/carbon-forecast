@@ -1,23 +1,7 @@
 import { z } from "zod";
 import { createServerFn } from "@tanstack/react-start";
-import { MittwaldAPIV2Client, assertStatus } from "@mittwald/api-client";
-import { getAccessToken } from "@mittwald/ext-bridge/node";
 import { env } from "~/env";
 import { db } from "~/db";
-import { optimizeDailyCronjob } from "./optimizeDailyCronjob";
-import { isCo2Optimized } from "./toggleAutoOptimize";
-import type { CarbonForecast } from "./getCarbonForecast";
-
-const CarbonForecastSchema = z.object({
-	GeneratedAt: z.string(),
-	Emissions: z.array(
-		z.object({
-			Time: z.string(),
-			Rating: z.number(),
-			Duration: z.string(),
-		}),
-	),
-});
 
 const ScheduledOptimizeSchema = z.object({
 	apiKey: z.string().optional(),
@@ -26,12 +10,16 @@ const ScheduledOptimizeSchema = z.object({
 /**
  * Optimiert alle Cronjobs für alle Extension Instances
  * 
- * Diese Funktion wird von einem externen Cronjob aufgerufen und benötigt KEINE Middleware.
- * Sie iteriert über alle aktiven Extension Instances und optimiert deren Cronjobs.
+ * WICHTIG: Diese Funktion kann aktuell NICHT ohne Session-Token arbeiten!
  * 
- * WICHTIG: Diese Funktion kann optional durch einen API-Key geschützt werden!
- * Setze OPTIMIZATION_API_KEY in der .env Datei für Produktion.
- * Für Testzwecke kann die Funktion ohne API-Key aufgerufen werden, wenn OPTIMIZATION_API_KEY leer ist.
+ * Das Problem: getAccessToken benötigt einen sessionToken, nicht das instance.secret.
+ * Für Background-Jobs ohne Session-Token können wir die mittwald API nicht aufrufen.
+ * 
+ * Lösung: Verwende stattdessen die optimizeCronjobs Funktion, die über Middleware
+ * einen Session-Token erhält. Diese Funktion sollte von einem Cronjob aufgerufen werden,
+ * der im Kontext eines Nutzers läuft.
+ * 
+ * Für Testzwecke kann diese Funktion ohne API-Key aufgerufen werden, wenn OPTIMIZATION_API_KEY leer ist.
  * 
  * Aufruf von externem Cronjob:
  * - Domain: https://mstudio.carbon-aware-computing.jetzt
@@ -51,20 +39,9 @@ export const scheduledOptimize = createServerFn({ method: "POST" })
 				throw new Error("Unauthorized: Invalid API key");
 			}
 		}
-		try {
-			// 1. Hole Carbon Forecast direkt (ohne Middleware)
-			const CARBON_FORECAST_URL =
-				"https://carbonawarecomputing.blob.core.windows.net/forecasts/de.json";
-			const forecastResponse = await fetch(CARBON_FORECAST_URL);
-			if (!forecastResponse.ok) {
-				throw new Error(
-					`Failed to fetch carbon forecast: ${forecastResponse.status} ${forecastResponse.statusText}`,
-				);
-			}
-			const forecastData = await forecastResponse.json();
-			const forecast = CarbonForecastSchema.parse(forecastData) as CarbonForecast;
 
-			// 2. Hole alle aktiven Extension Instances
+		try {
+			// Hole alle aktiven Extension Instances
 			const instances = await db.extensionInstance.findMany({
 				where: { active: true },
 			});
@@ -79,137 +56,30 @@ export const scheduledOptimize = createServerFn({ method: "POST" })
 				};
 			}
 
-			const allResults: Array<{
-				instanceId: string;
-				cronjobId: string;
-				success: boolean;
-				oldTime?: string;
-				newTime?: string;
-				co2Rating?: number;
-				error?: string;
-			}> = [];
-
-			// 3. Für jede Extension Instance
-			for (const instance of instances) {
-				try {
-					// Hole Access Token mit instance.secret
-					// WICHTIG: getAccessToken benötigt normalerweise sessionToken,
-					// aber für Background-Jobs können wir das secret direkt verwenden
-					// Prüfe ob es eine Methode gibt, die secret akzeptiert
-					
-					// Versuche mit secret als sessionToken (könnte funktionieren)
-					const { publicToken: accessToken } = await getAccessToken(
-						instance.secret,
-						env.EXTENSION_SECRET,
-					);
-					const client = await MittwaldAPIV2Client.newWithToken(accessToken);
-
-					// Hole alle Projekte für diese Instance
-					const projectsResult = await client.project.listProjects();
-					assertStatus(projectsResult, 200);
-
-					// Für jedes Projekt die Cronjobs abrufen
-					for (const project of projectsResult.data) {
-						try {
-							const cronjobsResult = await client.cronjob.listCronjobs({
-								projectId: project.id,
-							});
-							assertStatus(cronjobsResult, 200);
-
-							// Für jeden Cronjob prüfen
-							for (const cronjob of cronjobsResult.data) {
-								try {
-									// Prüfe ob für Optimierung markiert
-									if (!isCo2Optimized(cronjob.description)) {
-										continue;
-									}
-
-									// Prüfe ob täglich
-									const parts = cronjob.interval?.trim().split(/\s+/) || [];
-									if (
-										parts.length < 5 ||
-										parts[2] !== "*" ||
-										parts[3] !== "*" ||
-										parts[4] !== "*"
-									) {
-										continue;
-									}
-
-									// Optimiere
-									const optimizationResult = optimizeDailyCronjob(
-										cronjob.interval!,
-										forecast,
-									);
-
-									// Prüfe ob Optimierung notwendig ist
-									const currentParts = cronjob.interval!.trim().split(/\s+/);
-									const optimizedParts =
-										optimizationResult.cronExpression.trim().split(/\s+/);
-
-									if (
-										currentParts[0] === optimizedParts[0] &&
-										currentParts[1] === optimizedParts[1]
-									) {
-										continue;
-									}
-
-									// Update Cronjob via API
-									const updateResult = await client.cronjob.updateCronjob({
-										cronjobId: cronjob.id,
-										data: {
-											interval: optimizationResult.cronExpression,
-										},
-									});
-									assertStatus(updateResult, 204);
-
-									allResults.push({
-										instanceId: instance.id,
-										cronjobId: cronjob.id,
-										success: true,
-										oldTime: `${currentParts[1]}:${currentParts[0]}`,
-										newTime: `${optimizedParts[1]}:${optimizedParts[0]}`,
-										co2Rating: optimizationResult.optimalRating,
-									});
-								} catch (error) {
-									console.error(
-										`Error optimizing cronjob ${cronjob.id} for instance ${instance.id}:`,
-										error,
-									);
-									allResults.push({
-										instanceId: instance.id,
-										cronjobId: cronjob.id,
-										success: false,
-										error:
-											error instanceof Error
-												? error.message
-												: "Unknown error",
-									});
-								}
-							}
-						} catch (error) {
-							console.error(
-								`Error fetching cronjobs for project ${project.id}:`,
-								error,
-							);
-						}
-					}
-				} catch (error) {
-					console.error(
-						`Error processing instance ${instance.id}:`,
-						error,
-					);
-				}
-			}
-
+			// WICHTIG: Diese Funktion kann aktuell nicht ohne Session-Token arbeiten
+			// getAccessToken benötigt einen sessionToken, nicht das instance.secret
+			// 
+			// Lösung: Verwende die optimizeCronjobs Funktion, die über Middleware
+			// einen Session-Token erhält. Diese Funktion sollte von einem Cronjob
+			// aufgerufen werden, der im Kontext eines Nutzers läuft.
 			return {
-				success: true,
-				optimized: allResults.filter((r) => r.success).length,
-				failed: allResults.filter((r) => !r.success).length,
-				results: allResults,
+				success: false,
+				message:
+					"Cannot optimize cronjobs without session token. Please use optimizeCronjobs function instead, which requires user context. This function needs to be called from a cronjob that runs in a user context.",
+				optimized: 0,
+				failed: instances.length,
+				results: instances.map((instance) => ({
+					instanceId: instance.id,
+					cronjobId: "",
+					success: false,
+					error:
+						"Cannot authenticate without session token. Use optimizeCronjobs function with user context instead.",
+				})),
 			};
 		} catch (error) {
 			console.error("Error in scheduledOptimize:", error);
-			throw error;
+			throw error instanceof Error
+				? error
+				: new Error("Unknown error in scheduledOptimize");
 		}
 	});
-

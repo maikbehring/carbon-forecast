@@ -6,7 +6,6 @@ import {
 	Section,
 	Switch,
 	Label,
-	FieldDescription,
 	Table,
 	TableHeader,
 	TableColumn,
@@ -116,13 +115,25 @@ export function CarbonOptimization() {
 			<Section>
 				<Heading level={2}>CO₂-Optimierung</Heading>
 				<Text>
-					Aktiviere die automatische CO₂-Optimierung für tägliche Cronjobs. Der Cronjob
-					wird automatisch so umgestellt, dass er einmal täglich zur optimalen Zeit
-					ausgeführt wird – auch wenn er vorher häufiger am Tag lief.
+					Aktiviere die automatische CO₂-Optimierung für tägliche Cronjobs. Alle Cronjobs
+					werden dann nur noch einmal täglich zur optimalen Zeit ausgeführt – auch wenn
+					sie vorher häufiger am Tag liefen.
 				</Text>
 				<Text>
 					<strong>Wichtig:</strong> Die ursprüngliche Ausführungszeit wird überschrieben
 					und muss nach der Deaktivierung manuell wieder eingestellt werden.
+				</Text>
+				<Text>
+					Zur besseren Erkennbarkeit wird der Cronjob automatisch mit dem Marker{" "}
+					<InlineCode>[CO2-OPT]</InlineCode> in der Beschreibung versehen. So kannst du
+					einfach erkennen, welche Cronjobs für die automatische CO₂-Optimierung aktiviert
+					sind.
+				</Text>
+				<Text>
+					<strong>Hinweis:</strong> Du kannst den Marker auch manuell entfernen oder
+					hinzufügen – das System erkennt automatisch, ob ein Cronjob optimiert werden
+					soll. Wenn du den Marker manuell entfernst, wird der Cronjob nicht mehr
+					automatisch optimiert und der Switch zeigt "Inaktiv".
 				</Text>
 				{error && (
 					<Alert status="danger">
@@ -189,15 +200,8 @@ export function CarbonOptimization() {
 												}
 											>
 												<Label>
-													{isOptimized
-														? "Automatische Optimierung aktiv"
-														: "Automatische Optimierung aktivieren"}
+													{isOptimized ? "Aktiv" : "Inaktiv"}
 												</Label>
-												<FieldDescription>
-													{isOptimized
-														? "Der Cronjob wird täglich einmal zur optimalen Zeit ausgeführt. Die ursprüngliche Ausführungszeit wurde überschrieben und muss nach der Deaktivierung manuell wieder eingestellt werden."
-														: "Der Cronjob wird automatisch so umgestellt, dass er einmal täglich zur optimalen Zeit ausgeführt wird – auch wenn er vorher häufiger am Tag lief. Die ursprüngliche Ausführungszeit wird überschrieben und muss nach der Deaktivierung manuell wieder eingestellt werden."}
-												</FieldDescription>
 											</Switch>
 										</TableCell>
 									</TableRow>
