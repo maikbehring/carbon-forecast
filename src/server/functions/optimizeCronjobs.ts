@@ -1,12 +1,24 @@
+import { z } from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import { MittwaldAPIV2Client, assertStatus } from "@mittwald/api-client";
 import { getAccessToken } from "@mittwald/ext-bridge/node";
 import { verifyAccessToInstance } from "~/middlewares/verify-access-to-instance";
 import { env } from "~/env";
 import { getAllCronjobs } from "./getAllCronjobs";
-import { getCarbonForecast } from "./getCarbonForecast";
 import { optimizeDailyCronjob } from "./optimizeDailyCronjob";
 import { isCo2Optimized } from "./toggleAutoOptimize";
+import type { CarbonForecast } from "./getCarbonForecast";
+
+const CarbonForecastSchema = z.object({
+	GeneratedAt: z.string(),
+	Emissions: z.array(
+		z.object({
+			Time: z.string(),
+			Rating: z.number(),
+			Duration: z.string(),
+		}),
+	),
+});
 
 /**
  * Optimiert alle Cronjobs die für automatische Optimierung markiert sind
@@ -25,8 +37,36 @@ export const optimizeCronjobs = createServerFn({ method: "POST" })
 			}
 			const ctx = context as { sessionToken: string };
 
-			// 1. Hole Carbon Forecast
-			const forecast = await getCarbonForecast();
+			// 1. Hole Carbon Forecast direkt (ohne Server Function)
+			const CARBON_FORECAST_URL =
+				"https://carbonawarecomputing.blob.core.windows.net/forecasts/de.json";
+			const FETCH_TIMEOUT_MS = 10000; // 10 seconds
+			
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+			
+			let forecastResponse: Response;
+			try {
+				forecastResponse = await fetch(CARBON_FORECAST_URL, {
+					signal: controller.signal,
+				});
+				clearTimeout(timeoutId);
+			} catch (error) {
+				clearTimeout(timeoutId);
+				if (error instanceof Error && error.name === "AbortError") {
+					throw new Error("Request timeout: Carbon forecast API did not respond");
+				}
+				throw error;
+			}
+
+			if (!forecastResponse.ok) {
+				throw new Error(
+					`Failed to fetch carbon forecast: ${forecastResponse.status} ${forecastResponse.statusText}`,
+				);
+			}
+
+			const forecastData = await forecastResponse.json();
+			const forecast = CarbonForecastSchema.parse(forecastData) as CarbonForecast;
 
 			// 2. Hole alle Cronjobs
 			const cronjobs = await getAllCronjobs();

@@ -156,25 +156,16 @@ export function CarbonOptimization() {
 					und muss nach der Deaktivierung manuell wieder eingestellt werden.
 				</Text>
 				<Text>
-					Zur besseren Erkennbarkeit wird der Cronjob automatisch mit dem Marker{" "}
-					<InlineCode>[CO2-OPT]</InlineCode> in der Beschreibung versehen. So kannst du
-					einfach erkennen, welche Cronjobs für die automatische CO₂-Optimierung aktiviert
-					sind.
+					Der Cronjob wird automatisch mit dem Marker <InlineCode>[CO2-OPT]</InlineCode>{" "}
+					versehen. Du kannst den Marker auch manuell entfernen oder hinzufügen – das System
+					erkennt automatisch, ob ein Cronjob optimiert werden soll.
 				</Text>
 				<Text>
-					<strong>Hinweis:</strong> Du kannst den Marker auch manuell entfernen oder
-					hinzufügen – das System erkennt automatisch, ob ein Cronjob optimiert werden
-					soll. Wenn du den Marker manuell entfernst, wird der Cronjob nicht mehr
-					automatisch optimiert und der Switch zeigt "Inaktiv".
-				</Text>
-				<Text>
-					Die automatische Optimierung wird täglich um <strong>2 Uhr UTC</strong> durchgeführt.
-					Zu diesem Zeitpunkt wird der aktuelle Carbon Forecast analysiert und alle markierten
-					Cronjobs werden auf die optimale CO₂-Zeit für den kommenden Tag gesetzt. Diese optimale
-					Zeit wird jeden Tag neu berechnet und kann von Tag zu Tag variieren – mal morgens,
-					mal mittags, mal abends oder nachts – je nachdem, wann der geringste CO₂-Verbrauch
-					vorhergesagt wird. So wird sichergestellt, dass deine Cronjobs immer zur bestmöglichen
-					Zeit ausgeführt werden und der CO₂-Verbrauch kontinuierlich optimiert wird.
+					Die Optimierung läuft täglich um <strong>2 Uhr UTC</strong>. Der aktuelle Carbon
+					Forecast wird analysiert und alle markierten Cronjobs werden auf die optimale CO₂-Zeit
+					gesetzt. Diese optimale Zeit wird jeden Tag neu berechnet und kann variieren –
+					morgens, mittags, abends oder nachts – je nachdem, wann der geringste CO₂-Verbrauch
+					vorhergesagt wird.
 				</Text>
 				<Flex gap="m" align="start">
 					<Button

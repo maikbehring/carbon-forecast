@@ -205,7 +205,7 @@ export function CarbonForecast({
 					<Heading level={3}>Optimaler Zeitpunkt</Heading>
 					<Text>
 						Der beste Zeitpunkt für energieintensive Workloads mit dem geringsten
-						CO₂-Verbrauch war der {formatDateTime(optimalEmission.Time)} mit{" "}
+						CO₂-Verbrauch ist der {formatDateTime(optimalEmission.Time)} mit{" "}
 						{optimalEmission.Rating.toFixed(1)} g CO₂/kWh.
 					</Text>
 				</AccentBox>

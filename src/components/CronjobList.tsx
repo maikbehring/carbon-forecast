@@ -175,7 +175,7 @@ export function CronjobListComponent({ cronjobs, forecast }: CronjobListProps) {
 				<AccentBox>
 					<Heading level={3}>Optimaler Zeitpunkt</Heading>
 					<Text>
-						Der beste Zeitpunkt mit dem geringsten CO₂-Verbrauch war der{" "}
+						Der beste Zeitpunkt mit dem geringsten CO₂-Verbrauch ist der{" "}
 						{optimalTime.time} Uhr mit {Math.round(optimalTime.rating)} g CO₂/kWh.{" "}
 						Kopiere folgende Expression in das Interval-Feld deines Cronjobs, um ihn zu diesem optimalen Zeitpunkt auszuführen.
 					</Text>
