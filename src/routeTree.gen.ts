@@ -13,6 +13,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { ServerRoute as ApiWebhooksMittwaldServerRouteImport } from './routes/api/webhooks.mittwald'
+import { ServerRoute as ApiCronjobsOptimizeServerRouteImport } from './routes/api/cronjobs.optimize'
 
 const rootServerRouteImport = createServerRootRoute()
 
@@ -25,6 +26,12 @@ const ApiWebhooksMittwaldServerRoute =
   ApiWebhooksMittwaldServerRouteImport.update({
     id: '/api/webhooks/mittwald',
     path: '/api/webhooks/mittwald',
+    getParentRoute: () => rootServerRouteImport,
+  } as any)
+const ApiCronjobsOptimizeServerRoute =
+  ApiCronjobsOptimizeServerRouteImport.update({
+    id: '/api/cronjobs/optimize',
+    path: '/api/cronjobs/optimize',
     getParentRoute: () => rootServerRouteImport,
   } as any)
 
@@ -50,24 +57,28 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
 }
 export interface FileServerRoutesByFullPath {
+  '/api/cronjobs/optimize': typeof ApiCronjobsOptimizeServerRoute
   '/api/webhooks/mittwald': typeof ApiWebhooksMittwaldServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/cronjobs/optimize': typeof ApiCronjobsOptimizeServerRoute
   '/api/webhooks/mittwald': typeof ApiWebhooksMittwaldServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/cronjobs/optimize': typeof ApiCronjobsOptimizeServerRoute
   '/api/webhooks/mittwald': typeof ApiWebhooksMittwaldServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/webhooks/mittwald'
+  fullPaths: '/api/cronjobs/optimize' | '/api/webhooks/mittwald'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/webhooks/mittwald'
-  id: '__root__' | '/api/webhooks/mittwald'
+  to: '/api/cronjobs/optimize' | '/api/webhooks/mittwald'
+  id: '__root__' | '/api/cronjobs/optimize' | '/api/webhooks/mittwald'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiCronjobsOptimizeServerRoute: typeof ApiCronjobsOptimizeServerRoute
   ApiWebhooksMittwaldServerRoute: typeof ApiWebhooksMittwaldServerRoute
 }
 
@@ -91,6 +102,13 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiWebhooksMittwaldServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
+    '/api/cronjobs/optimize': {
+      id: '/api/cronjobs/optimize'
+      path: '/api/cronjobs/optimize'
+      fullPath: '/api/cronjobs/optimize'
+      preLoaderRoute: typeof ApiCronjobsOptimizeServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
   }
 }
 
@@ -101,6 +119,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiCronjobsOptimizeServerRoute: ApiCronjobsOptimizeServerRoute,
   ApiWebhooksMittwaldServerRoute: ApiWebhooksMittwaldServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
