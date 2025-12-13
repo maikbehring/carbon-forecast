@@ -26,8 +26,9 @@ const CarbonForecastSchema = z.object({
  * - Domain: https://mstudio.carbon-aware-computing.jetzt
  * - Endpoint: /_serverFn/src_server_functions_optimizeCronjobs_ts--optimizeCronjobs_createServerFn_handler?createServerFn
  * - Interval: 0 2 * * * (täglich um 2 Uhr UTC)
+ * - Method: GET oder POST (GET funktioniert ohne Body)
  */
-export const optimizeCronjobs = createServerFn({ method: "POST" })
+export const optimizeCronjobs = createServerFn({ method: "GET" })
 	.middleware([verifyAccessToInstance])
 	.handler(async ({ context, data: _data }: { context: any; data?: unknown }) => {
 		try {

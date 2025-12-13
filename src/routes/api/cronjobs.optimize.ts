@@ -29,21 +29,58 @@ const CarbonForecastSchema = z.object({
  * 
  * Der Cronjob muss einen Session-Token im Authorization-Header senden:
  * Authorization: Bearer <session-token>
+ * 
+ * ODER einen API-Key (falls OPTIMIZATION_API_KEY gesetzt ist):
+ * X-API-Key: <api-key>
  */
 export const ServerRoute = createServerFileRoute(
 	"/api/cronjobs/optimize",
 ).methods({
 	POST: async ({ request }) => {
 		try {
-			// Versuche Session-Token aus Authorization Header zu extrahieren
+			// Versuche Session-Token aus verschiedenen Quellen zu extrahieren
 			const authHeader = request.headers.get("Authorization");
 			let sessionToken: string | null = null;
 
 			if (authHeader && authHeader.startsWith("Bearer ")) {
 				sessionToken = authHeader.substring(7);
 			} else {
-				// Fallback: Versuche Token aus Cookie oder anderen Headers
-				sessionToken = request.headers.get("X-Session-Token");
+				// Fallback: Versuche Token aus anderen Headers
+				sessionToken =
+					request.headers.get("X-Session-Token") ||
+					request.headers.get("Session-Token") ||
+					null;
+			}
+
+			// Wenn kein Session-Token vorhanden, prüfe API-Key (falls gesetzt)
+			if (!sessionToken) {
+				if (env.OPTIMIZATION_API_KEY && env.OPTIMIZATION_API_KEY.trim() !== "") {
+					const apiKey = request.headers.get("X-API-Key");
+					if (!apiKey || apiKey !== env.OPTIMIZATION_API_KEY) {
+						return new Response(
+							JSON.stringify({
+								success: false,
+								error: "API key required. Please provide X-API-Key header.",
+							}),
+							{
+								status: 401,
+								headers: { "Content-Type": "application/json" },
+							},
+						);
+					}
+					// API-Key ist gültig, aber wir brauchen trotzdem einen Session-Token
+					// für die mittwald API. Das funktioniert nicht ohne Session-Token.
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: "Session token required for API access. This route requires a session token from a mittwald user context.",
+						}),
+						{
+							status: 401,
+							headers: { "Content-Type": "application/json" },
+						},
+					);
+				}
 			}
 
 			if (!sessionToken) {
