@@ -29,12 +29,15 @@ const CarbonForecastSchema = z.object({
  */
 export const optimizeCronjobs = createServerFn({ method: "POST" })
 	.middleware([verifyAccessToInstance])
-	.handler(async ({ context }: { context: any }) => {
+	.handler(async ({ context, data: _data }: { context: any; data?: unknown }) => {
 		try {
 			if (!context) {
 				throw new Error("Context is required");
 			}
 			const ctx = context as { sessionToken: string };
+			
+			// Ignoriere data-Parameter, da er nicht benötigt wird
+			// Der Cronjob kann einen leeren Body senden oder keinen Body
 
 			// 1. Hole Carbon Forecast direkt (ohne Server Function)
 			const CARBON_FORECAST_URL =

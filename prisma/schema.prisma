@@ -14,24 +14,4 @@ model ExtensionInstance {
   contextId   String    @db.Uuid
   active      Boolean   @default(true)
   secret      String /// @encrypted
-  optimizations CronjobOptimization[]
-}
-
-model CronjobOptimization {
-  id                String   @id @default(cuid())
-  cronjobId         String
-  projectId         String
-  instanceId        String
-  autoOptimize      Boolean  @default(false)
-  lastOptimizedAt   DateTime?
-  originalInterval  String
-  optimizedInterval String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  instance          ExtensionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
-
-  @@unique([cronjobId, instanceId])
-  @@index([instanceId])
-  @@index([projectId])
 }
